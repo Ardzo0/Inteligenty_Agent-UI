@@ -1,29 +1,29 @@
 from dataclasses import dataclass
 import numpy as np
-from simulacne_prostredie import Prostredie
 
-
+#Urcuje vsetko, co maju kazdy jeden agent spolocne
 class Agenti:
     def __init__(self, sur):
         self.energia = 10
         self.pozicia = sur
-    pass
-
+    
+    #Agenti budu vyuzivat tuto funkciu pre rozhodovanie na zaklade toho, co budu mat z funkcie range_agentov
     def rozhodnutie(self, vysledok_pozorovania):
         raise NotImplementedError
-        pass
+        
 
-
+#Specificky typ agenta - Lovec
 class Lovec(Agenti):
-    trieda =1
+    trieda =5
     zivot = True
     def rozhodnutie(self, vysledok_pozorovania):
             
             
         pass 
-      
+
+#Specificky typ agenta - Korist      
 class Korist(Agenti):
-    trieda = 2
+    trieda = 11
     zivot = True
     def rozhodnutie(self, vysledok_pozorovania):
             
