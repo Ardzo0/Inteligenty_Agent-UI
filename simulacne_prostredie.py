@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import agenti 
 import numpy as np
+import math
 
 @dataclass
 #Trieda pre uchovavanie vstupov potrebnych pre prostredie
@@ -51,16 +52,86 @@ class Prostredie:
     #TODO Nejak vymysliet, aby agenti mohli otacat ich viziu
     def range_agentov(self,agentus_manus):
         visible=[]
-        for n in self.agent:
-            if agenti.Lovec.trieda == 5:
-                #TODO napisat ray v tvare kuzelu
-                pass
-               
-            if agenti.Koristc.trieda ==11:
-                #TODO Napisat ray v tvare kruhu
-                pass
+        for n in self.agents:
+            if isinstance(agentus_manus,agenti.Lovec):
+                pocet_rays = 5
+                y_agent,x_agent = agentus_manus.pozicia
+                uhol = agentus_manus.uhol_agenta   
+                dof,bunka_x, bunka_y, ray_x, ray_y, uhol_luca, y_offset, x_offset 
 
-        
+                fov = math.radians(90)
+                for i in range(pocet_rays):
+                    
+                    if pocet_rays == 1:
+                            offset = 0
+                    else:
+                        offset = -fov / 2 + 1 * fov / (pocet_rays - 1)
+
+                        uhol_luca = uhol + offset
+                        delta_y = math.sin(uhol_luca)
+                        delta_x = math.sin(uhol_luca)    
+                    #Horizontalne luce  
+                    if delta_y < 0: #Pozeranie hore
+                        ray_y = math.floor(y_agent) - 0.001
+                        ray_x = (y_agent - ray_y )*(-delta_x/delta_y)+x_agent
+                        y_offset = -1
+                        x_offset =-y_offset*(-delta_x/delta_y)
+                        
+                    if delta_y > 0: #Pozeranie dole
+                        ray_y = math.floor(y_agent) - 1
+                        ray_x = (y_agent - ray_y )*(-delta_x/delta_y)+x_agent
+                        y_offset = 1
+                        x_offset =y_offset*(-delta_x/delta_y)
+                        
+                    if delta_y == 0: #Pozeranie v pravo a lavo
+                        ray_x=x_agent
+                        ray_y=y_agent
+                        dof=8
+                    while dof < 8:
+                        bunka_x = math.floor(ray_x)
+                        bunka_y = math.floor(ray_y)
+                        if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                            dof = 8
+                        else: #dalsia ciara
+                            ray_x += x_offset
+                            ray_y += y_offset
+                            dof +=1
+                        
+                        #Vertikalne luce
+                        if delta_y < 0: #Pozeranie hore
+                            ray_y = math.floor(y_agent) - 0.001
+                            ray_x = (y_agent - ray_y )*(-delta_x/delta_y)+x_agent
+                            y_offset = -1
+                            x_offset =-y_offset*(-delta_x/delta_y)
+                                                
+                        if delta_y > 0: #Pozeranie dole
+                            ray_y = math.floor(y_agent) - 1
+                            ray_x = (y_agent - ray_y )*(-delta_x/delta_y)+x_agent
+                            y_offset = 1
+                            x_offset =y_offset*(-delta_x/delta_y)
+                                                
+                        if delta_y == 0: #Pozeranie v pravo a lavo
+                            ray_x=x_agent
+                            ray_y=y_agent
+                            dof=8
+                        while dof < 8:
+                            bunka_x = math.floor(ray_x)
+                            bunka_y = math.floor(ray_y)
+                            if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                                dof = 8
+                            else: #dalsia ciara
+                                ray_x += x_offset
+                                ray_y += y_offset
+                                dof +=1
+
+                            #https://www.youtube.com/watch?v=gYRrGTC7GtA&t=376s tutorial cas 9:57
+
+
+
+        for n in self.agents:
+            if isinstance(agentus_manus,agenti.Korist):
+                y,x = agentus_manus.pozicia
+                pass
         pass
 
     #TODO Napisat, funkcia funguje ako server resp. ak mate serverovy anticheat tak ten server musi za urcity cyklus vykonat predpisane funkcie:range_agentov, rozhodnutie agentov a skontrolovanie agentov.
@@ -69,7 +140,7 @@ class Prostredie:
         
         
         pass
-    #TODO Napisat, v tejto funkci su definovane pravidla ako 1 = stena, 0 = prazne, 2 = jedlo..., a rozhoduje, ci vyber agenta je legalny, a ak je aplikuje ho
+    #TODO Napisat, v tejto funkci su definovane pravidla ako 1 = stena, 0 = prazdne, 2 = jedlo..., a rozhoduje, ci vyber agenta je legalny, a ak je aplikuje ho
     def sprav(self, agent, action):
         
         pass
