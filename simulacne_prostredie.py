@@ -56,9 +56,17 @@ class Prostredie:
             if isinstance(agentus_manus,agenti.Lovec):
                 pocet_rays = 5
                 y_agent,x_agent = agentus_manus.pozicia
+                y_agent = y_agent +0.5
+                x_agent = x_agent +0.5
                 uhol = agentus_manus.uhol_agenta   
-                dof,bunka_x, bunka_y, ray_x, ray_y, uhol_luca, y_offset, x_offset 
-
+                dof,bunka_x, bunka_y, ray_x, ray_y, uhol_luca, y_offset, x_offset, final_distance, pomocne_oznacenie_h,pomocne_oznacenie_v, oznacenie
+                distH = 1000000
+                hx=x_agent
+                hy=y_agent
+                distV = 1000000
+                vx=x_agent
+                vy=y_agent
+               
                 fov = math.radians(90)
                 for i in range(pocet_rays):
                     
@@ -69,7 +77,8 @@ class Prostredie:
 
                         uhol_luca = uhol + offset
                         delta_y = math.sin(uhol_luca)
-                        delta_x = math.sin(uhol_luca)    
+                        delta_x = math.sin(uhol_luca)   
+                     
                     #Horizontalne luce  
                     if delta_y < 0: #Pozeranie hore
                         ray_y = math.floor(y_agent) - 0.001
@@ -91,6 +100,10 @@ class Prostredie:
                         bunka_x = math.floor(ray_x)
                         bunka_y = math.floor(ray_y)
                         if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                            hx = ray_x
+                            hy= ray_y
+                            distH = math.sqrt((hx-x_agent)*(hx-x_agent)+(hy-y_agent)*(hy-y_agent))
+                            pomocne_oznacenie_h = 1
                             dof = 8
                         else: #dalsia ciara
                             ray_x += x_offset
@@ -98,19 +111,19 @@ class Prostredie:
                             dof +=1
                         
                         #Vertikalne luce
-                        if delta_y < 0: #Pozeranie hore
-                            ray_y = math.floor(y_agent) - 0.001
-                            ray_x = (y_agent - ray_y )*(-delta_x/delta_y)+x_agent
-                            y_offset = -1
-                            x_offset =-y_offset*(-delta_x/delta_y)
+                        if delta_x < 0: #Pozeranie vlavo
+                            ray_x = math.floor(x_agent) - 0.001
+                            ray_y = (y_agent - ray_y )*(-delta_y/delta_x)+y_agent
+                            x_offset = -1
+                            y_offset =-x_offset*(-delta_y/delta_x)
                                                 
-                        if delta_y > 0: #Pozeranie dole
-                            ray_y = math.floor(y_agent) - 1
-                            ray_x = (y_agent - ray_y )*(-delta_x/delta_y)+x_agent
-                            y_offset = 1
-                            x_offset =y_offset*(-delta_x/delta_y)
+                        if delta_x > 0: #Pozeranie vpravo
+                            ray_x = math.floor(x_agent) - 1
+                            ray_y = (y_agent - ray_y )*(-delta_y/delta_x)+y_agent
+                            x_offset = 1
+                            y_offset =x_offset*(-delta_y/delta_x)
                                                 
-                        if delta_y == 0: #Pozeranie v pravo a lavo
+                        if delta_y == 0: #Pozeranie hore, dole
                             ray_x=x_agent
                             ray_y=y_agent
                             dof=8
@@ -119,13 +132,31 @@ class Prostredie:
                             bunka_y = math.floor(ray_y)
                             if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
                                 dof = 8
+                                vx= ray_x
+                                vy= ray_y
+                                distV = math.sqrt((hx-x_agent)*(hx-x_agent)+(hy-y_agent)*(hy-y_agent))
+                                pomocne_oznacenie_v=1
                             else: #dalsia ciara
                                 ray_x += x_offset
                                 ray_y += y_offset
                                 dof +=1
-
-                            #https://www.youtube.com/watch?v=gYRrGTC7GtA&t=376s tutorial cas 9:57
-
+                        if distV < distH:
+                            ray_x=vx
+                            ray_y=vy
+                            final_distance = distV
+                            oznacenie = pomocne_oznacenie_v
+                        if distH <distV:
+                            ray_x=hx
+                            ray_y=hy    
+                            final_distance = distH
+                            oznacenie = pomocne_oznacenie_h
+                        if final_distance > dof:
+                            oznacenie =0
+                            final_distance = dof
+                        visible.append((oznacenie,final_distance))   
+                            
+                            #https://www.youtube.com/watch?v=gYRrGTC7GtA&t=376s tutorial, pri nechapani bola vyuzita AI
+        
 
 
         for n in self.agents:
@@ -133,6 +164,10 @@ class Prostredie:
                 y,x = agentus_manus.pozicia
                 pass
         pass
+        
+        
+        
+        return visible
 
     #TODO Napisat, funkcia funguje ako server resp. ak mate serverovy anticheat tak ten server musi za urcity cyklus vykonat predpisane funkcie:range_agentov, rozhodnutie agentov a skontrolovanie agentov.
     # tick je hodnota kolko krat
