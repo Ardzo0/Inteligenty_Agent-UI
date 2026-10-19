@@ -29,11 +29,13 @@ class Agenti:
 class Lovec(Agenti):
     trieda =5
     zivot = True
+    uhol_otocenia = math.pi
     zastavujuca_vzdialenost = 1
     vzdialenost_pokracuj = 3
     class Specialne_pohyby(Enum):
         Utok = 3
     def rozhodnutie(self, vysledok_pozorovania):
+        
         stred = len(vysledok_pozorovania) // 2
 
         kod,vzdialenost = vysledok_pozorovania[stred]
@@ -50,7 +52,7 @@ class Lovec(Agenti):
             return self.Pohyb.DoPrava.value
         if najlepsi_ray < stred:
             return self.Pohyb.Dolava.value  
-        return self.Pohyb.DoPrava    
+        return self.Pohyb.DoPrava.value    
 
             
             
@@ -60,6 +62,7 @@ class Lovec(Agenti):
 class Korist(Agenti):
     trieda = 11
     zivot = True
+    uhol_otocenia = math.pi
     zastavujuca_vzdialenost = 1
     vzdialenost_pokracuj = 4
     def rozhodnutie(self, vysledok_pozorovania):
@@ -78,5 +81,5 @@ class Korist(Agenti):
             return self.Pohyb.DoPrava.value
         if najlepsi_ray < stred:
             return self.Pohyb.Dolava.value  
-        return self.Pohyb.DoPrava        
+        return self.Pohyb.DoPrava.value        
         

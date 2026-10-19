@@ -5,7 +5,7 @@ import math
 from mazelib import Maze
 from mazelib.generate.Ellers import Ellers
 import random
-
+#TODO Debilina nejak to nefunguje s externymi funkciamni prosim navrhnut resp. pozriet tutorial na algoritmus https://www.youtube.com/watch?v=jZQ31-4_8KM, 
 @dataclass
 #Trieda pre uchovavanie vstupov potrebnych pre prostredie
 class Parametre:
@@ -28,38 +28,37 @@ class Prostredie:
         self.reset()
     
     def generacia_prostredia(self):
+        
         gen = Maze()
-        random.seed(1)
+        np.random.seed()
         gen.generator = Ellers(self.parametre.sirka, self.parametre.vyska)
         gen.generate()
 
         
-        return np.array(gen.grid)
+        return np.array(gen.grid,dtype=int)
         
 
     def reset(self):
         self.generator_nahodnych_cisiel = np.random.default_rng(self.parametre.seed)
        
+        
+        #self.rozlozenie_prostredia = self.generacia_prostredia()  
 
-        self.rozlozenie_prostredia = self.generacia_prostredia()  
-
-       # print(np.sum(self.rozlozenie_prostredia == 1))
-       # print(self.rozlozenie_prostredia.shape)
         #Vytvaranie Prostredia s grid tematikou 
-        #self.rozlozenie_prostredia = np.zeros((self.parametre.vyska, self.parametre.sirka), dtype=int)
-        #self.rozlozenie_prostredia[0,:] = 1
-        #self.rozlozenie_prostredia[49,:] = 1
-        #self.rozlozenie_prostredia[:,0] = 1
-        #self.rozlozenie_prostredia[:,49] = 1
-        #self.rozlozenie_prostredia[2,2:] =1
-        #self.rozlozenie_prostredia[8:27,2] =1
-        #self.rozlozenie_prostredia[9,2:8] = 1
-        #self.rozlozenie_prostredia[33:45,4] = 1
-        #self.rozlozenie_prostredia[12:43,6]=1
-        #self.rozlozenie_prostredia[12:43,8]=1
-        #self.rozlozenie_prostredia[6:43,10]=1
-        #self.rozlozenie_prostredia[32:45,2]=1
-        #self.rozlozenie_prostredia[45,2:7]=1
+        self.rozlozenie_prostredia = np.zeros((self.parametre.vyska, self.parametre.sirka), dtype=int)
+        self.rozlozenie_prostredia[0,:] = 1
+        self.rozlozenie_prostredia[49,:] = 1
+        self.rozlozenie_prostredia[:,0] = 1
+        self.rozlozenie_prostredia[:,49] = 1
+        self.rozlozenie_prostredia[2,2:] =1
+        self.rozlozenie_prostredia[8:27,2] =1
+        self.rozlozenie_prostredia[9,2:8] = 1
+        self.rozlozenie_prostredia[33:45,4] = 1
+        self.rozlozenie_prostredia[12:43,6]=1
+        self.rozlozenie_prostredia[12:43,8]=1
+        self.rozlozenie_prostredia[6:43,10]=1
+        self.rozlozenie_prostredia[32:45,2]=1
+        self.rozlozenie_prostredia[45,2:7]=1
         self.tick = 0
         
         #Snaha o generator a nahodnu volbu pre hunterov a koristi
@@ -67,22 +66,23 @@ class Prostredie:
         nulove_polia = np.argwhere(self.rozlozenie_prostredia == 0)
         indexy_buniek = self.generator_nahodnych_cisiel.choice(len(nulove_polia),pocet_agentov,False)
 
+        uhlik = math.pi /2
         for poradie,indexy in enumerate(indexy_buniek):
-            pozicia = tuple(nulove_polia[indexy].tolist())
+            pozicia = tuple((nulove_polia[indexy]+0.5).tolist())
             if poradie < self.pocet_lovec:
-                self.agents.append(agenti.Lovec(pozicia,uhol=0.1))
+                self.agents.append(agenti.Lovec(pozicia,uhol=uhlik))
             else:
-                self.agents.append(agenti.Korist(pozicia,uhol=0.1))
+                self.agents.append(agenti.Korist(pozicia,uhol=uhlik))
 
     
     def range_agentov(self,agentus_manus):
         visible=[]
         #for n in self.agents:
         if isinstance(agentus_manus,agenti.Lovec):
-                pocet_rays = 180
+                pocet_rays = 360
                 y_agent,x_agent = agentus_manus.pozicia
-                y_agent = y_agent +0.5
-                x_agent = x_agent +0.5
+                y_agent = y_agent 
+                x_agent = x_agent 
                 uhol = agentus_manus.uhol_agent   
                 dof =0
                 bunka_x=0
@@ -105,7 +105,7 @@ class Prostredie:
                 range_lovec = 9 
                 
                
-                fov = math.radians(180)
+                fov = math.radians(90)
                 for i in range(pocet_rays):
                     dof=0
                     distH=1000000
@@ -118,7 +118,7 @@ class Prostredie:
                             offset = 0
                     else:
                         offset = -fov / 2 + i * fov / (pocet_rays - 1)
-
+                        
                     uhol_luca = uhol + offset
                     delta_y = math.sin(uhol_luca)
                     delta_x = math.cos(uhol_luca)   
@@ -206,10 +206,10 @@ class Prostredie:
 
         #for n in self.agents:
         if isinstance(agentus_manus,agenti.Korist):
-                pocet_rays = 360
+                pocet_rays = 720
                 y_agent,x_agent = agentus_manus.pozicia
-                y_agent = y_agent +0.5
-                x_agent = x_agent +0.5
+                y_agent = y_agent 
+                x_agent = x_agent 
                 uhol = agentus_manus.uhol_agent   
                 dof=0
                 bunka_x=0
@@ -231,7 +231,7 @@ class Prostredie:
                 vy=y_agent
                 range_korist = 13
                
-                fov = math.radians(360)
+                fov = math.radians(90)
                 for i in range(pocet_rays):
                     dof=0
                     distH=1000000
@@ -336,11 +336,54 @@ class Prostredie:
     # tick je hodnota kolko krat
     def krok(self):
         #Faza 1 
-        pozorovanie = self.range_agentov(self.agents)
+        for poradie,agent in enumerate(self.agents):
+            akcia =0
+            pozorovanie = self.range_agentov(agent)
+            akcia = agent.rozhodnutie(pozorovanie)
+            
+        #Faza 2 
+        for poradie,agent in enumerate(self.agents): 
+            self.sprav(agent,akcia)
         
         
-        pass
+        
     #TODO Napisat, v tejto funkci su definovane pravidla ako 1 = stena, 0 = prazdne, 2 = jedlo..., a rozhoduje, ci vyber agenta je legalny, a ak je aplikuje ho
     def sprav(self, agent, action):
+        x_agent, y_agent = agent.pozicia
+        uhol_ = agent.uhol_agent
         
-        pass
+        if action == agenti.Agenti.Pohyb.Dopredu.value:
+            delta_x = math.cos(uhol_)
+            delta_y = math.sin(uhol_)
+            x_zaokruhlene = round(delta_x)
+            y_zaokruhlene = round(delta_y)
+            hotove_x = x_agent + delta_y*0.1
+            hotove_y = y_agent + delta_x*0.1
+            bunka_X = math.floor(hotove_x)
+            bunka_Y = math.floor(hotove_y)
+            diagonala = x_zaokruhlene !=0 and  y_zaokruhlene !=0
+            blokada = self.rozlozenie_prostredia[bunka_Y][bunka_X] ==1
+            if diagonala:
+                if (self.rozlozenie_prostredia[y_agent][bunka_X] ==1 or self.rozlozenie_prostredia[bunka_Y][x_agent] == 1):
+                 blokada = True
+            if not blokada:
+                 agent.pozicia = (hotove_y,hotove_x)
+
+        if action == agenti.Agenti.Pohyb.DoPrava.value:  
+            if isinstance(agent, agenti.Lovec):
+                uhol = uhol_ + agenti.Lovec.uhol_otocenia 
+                agent.uhol_agent = uhol         
+            if isinstance(agent, agenti.Korist):
+                        uhol = uhol_ + agenti.Korist.uhol_otocenia 
+                        agent.uhol_agent = uhol      
+        if action == agenti.Agenti.Pohyb.Dolava.value:  
+            if isinstance(agent, agenti.Lovec):
+                uhol = uhol_ - agenti.Lovec.uhol_otocenia 
+                agent.uhol_agent = uhol         
+            if isinstance(agent, agenti.Korist):
+                    uhol = uhol_ + agenti.Korist.uhol_otocenia 
+                    agent.uhol_agent = uhol 
+        if action == agenti.Agenti.Pohyb.Stop.value:
+             agent.pozicia = (y_agent,x_agent)
+                              
+        
