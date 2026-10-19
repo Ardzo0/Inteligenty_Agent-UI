@@ -359,8 +359,8 @@ class Prostredie:
             delta_y = math.sin(uhol_)
             x_zaokruhlene = round(delta_x)
             y_zaokruhlene = round(delta_y)
-            hotove_x = x_agent + delta_y*0.1
-            hotove_y = y_agent + delta_x*0.1
+            hotove_x = x_agent + delta_x*0.1
+            hotove_y = y_agent + delta_y*0.1
             stara_y=math.floor(y_agent)
             stara_x= math.floor(x_agent)
             bunka_X = math.floor(hotove_x)
