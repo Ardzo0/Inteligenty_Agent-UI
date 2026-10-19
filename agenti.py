@@ -9,6 +9,7 @@ class Agenti:
         self.energia = 10
         self.pozicia = sur
         self.uhol_agent = uhol 
+        self.smer_otacania = None
     class Pohyb(Enum):
         Dopredu = 8
         Dozadu = 7
@@ -30,34 +31,43 @@ class Lovec(Agenti):
     trieda =5
     zivot = True
     uhol_otocenia = math.pi
-    zastavujuca_vzdialenost = 1
-    vzdialenost_pokracuj = 3
+    zastavujuca_vzdialenost = 2
+    vzdialenost_pokracuj = 4
     class Specialne_pohyby(Enum):
         Utok = 3
     def rozhodnutie(self, vysledok_pozorovania):
         
         stred = len(vysledok_pozorovania) // 2
-
         kod,vzdialenost = vysledok_pozorovania[stred]
-        if not( kod == 1 and vzdialenost > self.zastavujuca_vzdialenost):
+        volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
+        blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
+        
+
+        if self.smer_otacania is None:
+            if not blokada_vpredu:
+                return self.Pohyb.Dopredu.value
+
+        def volne(z):
+            return 100 if z[0] == 0 else z[1]
+        vlavo = sum(volne(z) for z in vysledok_pozorovania[:stred])
+        vpravo = sum(volne(z) for z in vysledok_pozorovania[stred +1:])
+        if vlavo > vpravo:
+            self.smer_otacania =  self.Pohyb.Dolava.value  
+            return self.smer_otacania 
+        else:
+           self.smer_otacania = self.Pohyb.DoPrava.value 
+           return self.smer_otacania
+
+
+        if volno_vpredu:
+            self.smer_otacania = None
             return self.Pohyb.Dopredu.value
+        return self.smer_otacania       
 
-        najlepsi_ray=None
-        for i, (kod,vzdialenost) in enumerate(vysledok_pozorovania):
-            if vzdialenost > self.vzdialenost_pokracuj:
-                if najlepsi_ray is None or abs(i - stred) < abs(najlepsi_ray - stred):
-                    najlepsi_ray = i
 
-        if najlepsi_ray is None:
-            return self.Pohyb.DoPrava.value
-        if najlepsi_ray < stred:
-            return self.Pohyb.Dolava.value  
-        return self.Pohyb.DoPrava.value    
+           
 
-            
-            
-    
-
+       
 #Specificky typ agenta - Korist      
 class Korist(Agenti):
     trieda = 11
@@ -68,18 +78,30 @@ class Korist(Agenti):
     def rozhodnutie(self, vysledok_pozorovania):
         stred = len(vysledok_pozorovania) // 2
         kod,vzdialenost = vysledok_pozorovania[stred]
-        if not( kod == 1 and vzdialenost > self.zastavujuca_vzdialenost):
+        volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
+        blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
+        print(stred)
+        print(self.pozicia)
+        print(self.uhol_agent)
+
+        if self.smer_otacania is None:
+            if not blokada_vpredu:
+                return self.Pohyb.Dopredu.value
+
+        def volne(z):
+            return 100 if z[0] == 0 else z[1]
+        vlavo = sum(volne(z) for z in vysledok_pozorovania[:stred])
+        vpravo = sum(volne(z) for z in vysledok_pozorovania[stred +1:])
+        if vlavo > vpravo:
+            self.smer_otacania =  self.Pohyb.Dolava.value  
+            return self.smer_otacania 
+        else:
+           self.smer_otacania = self.Pohyb.DoPrava.value 
+           return self.smer_otacania
+
+
+        if volno_vpredu:
+            self.smer_otacania = None
             return self.Pohyb.Dopredu.value
-
-        najlepsi_ray=None
-        for i, (kod,vzdialenost) in enumerate(vysledok_pozorovania):
-            if vzdialenost > self.vzdialenost_pokracuj:
-                if najlepsi_ray is None or abs(i - stred) < abs(najlepsi_ray - stred):
-                    najlepsi_ray = i
-
-        if najlepsi_ray is None:
-            return self.Pohyb.DoPrava.value
-        if najlepsi_ray < stred:
-            return self.Pohyb.Dolava.value  
-        return self.Pohyb.DoPrava.value        
-        
+        return self.smer_otacania       
+  

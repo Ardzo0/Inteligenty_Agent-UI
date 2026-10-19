@@ -79,7 +79,7 @@ class Prostredie:
         visible=[]
         #for n in self.agents:
         if isinstance(agentus_manus,agenti.Lovec):
-                pocet_rays = 360
+                pocet_rays = 5
                 y_agent,x_agent = agentus_manus.pozicia
                 y_agent = y_agent 
                 x_agent = x_agent 
@@ -206,7 +206,7 @@ class Prostredie:
 
         #for n in self.agents:
         if isinstance(agentus_manus,agenti.Korist):
-                pocet_rays = 720
+                pocet_rays = 5
                 y_agent,x_agent = agentus_manus.pozicia
                 y_agent = y_agent 
                 x_agent = x_agent 
@@ -336,20 +336,22 @@ class Prostredie:
     # tick je hodnota kolko krat
     def krok(self):
         #Faza 1 
-        for poradie,agent in enumerate(self.agents):
-            akcia =0
+        rozhodnutia = []
+        for agent in self.agents:
             pozorovanie = self.range_agentov(agent)
             akcia = agent.rozhodnutie(pozorovanie)
+            rozhodnutia.append((agent,akcia))
+            print(type(agent).__name__,akcia)
             
         #Faza 2 
-        for poradie,agent in enumerate(self.agents): 
+        for agent, akcia in rozhodnutia: 
             self.sprav(agent,akcia)
         
-        
+        self.tick +=1
         
     #TODO Napisat, v tejto funkci su definovane pravidla ako 1 = stena, 0 = prazdne, 2 = jedlo..., a rozhoduje, ci vyber agenta je legalny, a ak je aplikuje ho
     def sprav(self, agent, action):
-        x_agent, y_agent = agent.pozicia
+        y_agent, x_agent = agent.pozicia
         uhol_ = agent.uhol_agent
         
         if action == agenti.Agenti.Pohyb.Dopredu.value:
@@ -359,30 +361,35 @@ class Prostredie:
             y_zaokruhlene = round(delta_y)
             hotove_x = x_agent + delta_y*0.1
             hotove_y = y_agent + delta_x*0.1
+            stara_y=math.floor(y_agent)
+            stara_x= math.floor(x_agent)
             bunka_X = math.floor(hotove_x)
             bunka_Y = math.floor(hotove_y)
-            diagonala = x_zaokruhlene !=0 and  y_zaokruhlene !=0
+            diagonala = bunka_Y != stara_y and bunka_X != stara_x
+
             blokada = self.rozlozenie_prostredia[bunka_Y][bunka_X] ==1
             if diagonala:
-                if (self.rozlozenie_prostredia[y_agent][bunka_X] ==1 or self.rozlozenie_prostredia[bunka_Y][x_agent] == 1):
+                if (self.rozlozenie_prostredia[stara_y][bunka_X] ==1 or self.rozlozenie_prostredia[bunka_Y][stara_x] == 1):
+                 print(self.rozlozenie[bunka_Y][bunka_X])
                  blokada = True
+                 
             if not blokada:
                  agent.pozicia = (hotove_y,hotove_x)
 
         if action == agenti.Agenti.Pohyb.DoPrava.value:  
             if isinstance(agent, agenti.Lovec):
-                uhol = uhol_ + agenti.Lovec.uhol_otocenia 
-                agent.uhol_agent = uhol         
+                agent.uhol_agent = uhol_ + agenti.Lovec.uhol_otocenia 
+                       
             if isinstance(agent, agenti.Korist):
-                        uhol = uhol_ + agenti.Korist.uhol_otocenia 
-                        agent.uhol_agent = uhol      
+                agent.uhol_agent = uhol_ + agenti.Korist.uhol_otocenia 
+                            
         if action == agenti.Agenti.Pohyb.Dolava.value:  
             if isinstance(agent, agenti.Lovec):
-                uhol = uhol_ - agenti.Lovec.uhol_otocenia 
-                agent.uhol_agent = uhol         
+                agent.uhol_agent = uhol_ - agenti.Lovec.uhol_otocenia 
+                       
             if isinstance(agent, agenti.Korist):
-                    uhol = uhol_ + agenti.Korist.uhol_otocenia 
-                    agent.uhol_agent = uhol 
+                    agent.uhol_agent = uhol_ - agenti.Korist.uhol_otocenia 
+                    
         if action == agenti.Agenti.Pohyb.Stop.value:
              agent.pozicia = (y_agent,x_agent)
                               

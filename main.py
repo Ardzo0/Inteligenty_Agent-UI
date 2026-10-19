@@ -33,11 +33,12 @@ pozicie, triedy = render_agentov(prostredie)
 plt.ion()
 fig, ax = plt.subplots()
 
-obrazok_prostredai = ax.imshow(kopia, vmin=0, vmax=0)
+obrazok_prostredai = ax.imshow(prostredie.rozlozenie_prostredia, cmap="gray_r", vmin=0, vmax=11)
 obrazok = ax.scatter(pozicie[:,0], pozicie[:,1], c = triedy, vmin=0, vmax=11)
 
-for _ in range(100):
+for _ in range(500):
     prostredie.krok()
+    pozicie, triedy = render_agentov(prostredie)
     obrazok_prostredai.set_array(kopia)
     obrazok.set_offsets(pozicie)
     obrazok.set_array(triedy)
