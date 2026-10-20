@@ -8,7 +8,7 @@ np.set_printoptions(linewidth=300)
 
 
 
-parametre = Parametre(sirka =50, vyska=50, n_lovec=1, n_obet=1, seed=np.random.seed())
+parametre = Parametre(sirka =50, vyska=50, n_lovec=1, n_obet=0, seed=np.random.seed())
 prostredie = Prostredie(parametre)
 
 
@@ -21,8 +21,6 @@ def render_agentov(prostredie):
             if agent.zivot:
                 pos_y,pos_x = agent.pozicia
                 
-                #y_bunka = math.floor(y)
-                #x_bunka = math.floor(x)
                 pozicie.append([pos_x-0.5,pos_y-0.5])
                 triedy.append(agent.trieda)
 
@@ -36,7 +34,7 @@ fig, ax = plt.subplots()
 obrazok_prostredai = ax.imshow(prostredie.rozlozenie_prostredia, cmap="gray_r", vmin=0, vmax=11)
 obrazok = ax.scatter(pozicie[:,0], pozicie[:,1], c = triedy, vmin=0, vmax=11)
 
-for _ in range(500):
+for _ in range(1000):
     prostredie.krok()
     pozicie, triedy = render_agentov(prostredie)
     obrazok_prostredai.set_array(kopia)

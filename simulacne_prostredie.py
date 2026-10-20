@@ -5,7 +5,7 @@ import math
 from mazelib import Maze
 from mazelib.generate.Ellers import Ellers
 import random
-#TODO Debilina nejak to nefunguje s externymi funkciamni prosim navrhnut resp. pozriet tutorial na algoritmus https://www.youtube.com/watch?v=jZQ31-4_8KM, 
+
 @dataclass
 #Trieda pre uchovavanie vstupov potrebnych pre prostredie
 class Parametre:
@@ -50,23 +50,34 @@ class Prostredie:
         self.rozlozenie_prostredia[49,:] = 1
         self.rozlozenie_prostredia[:,0] = 1
         self.rozlozenie_prostredia[:,49] = 1
-        self.rozlozenie_prostredia[2,2:] =1
-        self.rozlozenie_prostredia[8:27,2] =1
-        self.rozlozenie_prostredia[9,2:8] = 1
-        self.rozlozenie_prostredia[33:45,4] = 1
-        self.rozlozenie_prostredia[12:43,6]=1
-        self.rozlozenie_prostredia[12:43,8]=1
-        self.rozlozenie_prostredia[6:43,10]=1
-        self.rozlozenie_prostredia[32:45,2]=1
-        self.rozlozenie_prostredia[45,2:7]=1
+        #self.rozlozenie_prostredia[2,2:] =1
+        #self.rozlozenie_prostredia[8:27,2] =1
+        #self.rozlozenie_prostredia[9,2:8] = 1
+        #self.rozlozenie_prostredia[33:45,4] = 1
+        #self.rozlozenie_prostredia[12:43,6]=1
+        #self.rozlozenie_prostredia[12:43,8]=1
+        #self.rozlozenie_prostredia[6:43,10]=1
+        #self.rozlozenie_prostredia[32:45,2]=1
+        #self.rozlozenie_prostredia[45,2:7]=1
+        self.rozlozenie_prostredia[0:23,23]=1
+        self.rozlozenie_prostredia[0:23,25]=1
+        self.rozlozenie_prostredia[25:49,23]=1
+        self.rozlozenie_prostredia[25:49,25]=1
+        self.rozlozenie_prostredia[23,0:23]=1
+        self.rozlozenie_prostredia[25,0:23]=1
+        self.rozlozenie_prostredia[23,0:24]=1
+        self.rozlozenie_prostredia[25,0:23]=1
+        self.rozlozenie_prostredia[25,25:49]=1
+        self.rozlozenie_prostredia[23,25:49]=1
+        self.rozlozenie_prostredia[24,24]=2
         self.tick = 0
         
         #Snaha o generator a nahodnu volbu pre hunterov a koristi
         pocet_agentov = self.pocet_lovec + self.pocet_obet
-        nulove_polia = np.argwhere(self.rozlozenie_prostredia == 0)
+        nulove_polia = np.argwhere(self.rozlozenie_prostredia == 2)
         indexy_buniek = self.generator_nahodnych_cisiel.choice(len(nulove_polia),pocet_agentov,False)
 
-        uhlik = math.pi /2
+        uhlik = math.pi/2
         for poradie,indexy in enumerate(indexy_buniek):
             pozicia = tuple((nulove_polia[indexy]+0.5).tolist())
             if poradie < self.pocet_lovec:
@@ -77,51 +88,34 @@ class Prostredie:
     
     def range_agentov(self,agentus_manus):
         visible=[]
-        #for n in self.agents:
+        
         if isinstance(agentus_manus,agenti.Lovec):
                 pocet_rays = 5
                 y_agent,x_agent = agentus_manus.pozicia
-                y_agent = y_agent 
-                x_agent = x_agent 
+                vy,vx,hy,hx = y_agent, x_agent,y_agent,x_agent 
                 uhol = agentus_manus.uhol_agent   
-                dof =0
-                bunka_x=0
-                bunka_y=0
-                ray_x=0
-                ray_y=0
-                uhol_luca=0
-                y_offset=0
-                x_offset=0
-                final_distance=0
-                pomocne_oznacenie_h=0
-                pomocne_oznacenie_v=0
-                oznacenie=0
-                distH = 1000000
-                hx=x_agent
-                hy=y_agent
-                distV = 1000000
-                vx=x_agent
-                vy=y_agent
+                dof,uhol_luca,bunka_x, bunka_y=0,0,0,0
+                ray_x,ray_y,y_offset,x_offset=0,0,0,0
+                final_distance,pomocne_oznacenie_h,pomocne_oznacenie_v,oznacenie=0,0,0,0
+                distH,distV = 1000000,1000000
                 range_lovec = 9 
                 
                
                 fov = math.radians(90)
                 for i in range(pocet_rays):
                     dof=0
-                    distH=1000000
-                    distV=1000000
-                    pomocne_oznacenie_h=0
-                    pomocne_oznacenie_v=0
-                    final_distance = 0
-                    oznacenie = 0
+                    distH,distV=1000000,1000000
+                    pomocne_oznacenie_h,pomocne_oznacenie_v=0,0
+                    final_distance,oznacenie = 0,0
+                    
                     if pocet_rays == 1:
                             offset = 0
                     else:
                         offset = -fov / 2 + i * fov / (pocet_rays - 1)
                         
                     uhol_luca = uhol + offset
-                    delta_y = math.sin(uhol_luca)
-                    delta_x = math.cos(uhol_luca)   
+                    delta_y,delta_x = math.sin(uhol_luca) * 5, math.cos(uhol_luca) * 5  
+        
                      
                     #Horizontalne luce  
                     if delta_y < 0: #Pozeranie hore
@@ -204,42 +198,25 @@ class Prostredie:
         
 
 
-        #for n in self.agents:
+        
         if isinstance(agentus_manus,agenti.Korist):
                 pocet_rays = 5
                 y_agent,x_agent = agentus_manus.pozicia
-                y_agent = y_agent 
-                x_agent = x_agent 
+                vy,vx,hy,hx = y_agent, x_agent,y_agent,x_agent 
                 uhol = agentus_manus.uhol_agent   
-                dof=0
-                bunka_x=0
-                bunka_y=0
-                ray_x=0
-                ray_y=0
-                uhol_luca=0
-                y_offset=0
-                x_offset=0
-                final_distance=0
-                pomocne_oznacenie_h=0
-                pomocne_oznacenie_v=0
-                oznacenie=0
-                distH = 1000000
-                hx=x_agent
-                hy=y_agent
-                distV = 1000000
-                vx=x_agent
-                vy=y_agent
+                dof,uhol_luca,bunka_x, bunka_y=0,0,0,0
+                ray_x,ray_y,y_offset,x_offset=0,0,0,0
+                final_distance,pomocne_oznacenie_h,pomocne_oznacenie_v,oznacenie=0,0,0,0
+                distH,distV = 1000000,1000000
                 range_korist = 13
-               
+            
                 fov = math.radians(90)
                 for i in range(pocet_rays):
                     dof=0
-                    distH=1000000
-                    distV=1000000
-                    pomocne_oznacenie_h=0
-                    pomocne_oznacenie_v=0
-                    final_distance = 0
-                    oznacenie = 0
+                    distH,distV=1000000,1000000
+                    pomocne_oznacenie_h,pomocne_oznacenie_v=0,0
+                    final_distance,oznacenie = 0,0
+                    
 
                     if pocet_rays == 1:
                             offset = 0
@@ -247,8 +224,8 @@ class Prostredie:
                         offset = -fov / 2 + i * fov / (pocet_rays - 1)
 
                     uhol_luca = uhol + offset
-                    delta_y = math.sin(uhol_luca)
-                    delta_x = math.cos(uhol_luca)   
+                    delta_y,delta_x = math.sin(uhol_luca) * 5,math.cos(uhol_luca) * 5  
+                    
                      
                     #Horizontalne luce  
                     if delta_y < 0: #Pozeranie hore
@@ -332,8 +309,7 @@ class Prostredie:
         
         return visible
 
-    #TODO Napisat, funkcia funguje ako server resp. ak mate serverovy anticheat tak ten server musi za urcity cyklus vykonat predpisane funkcie:range_agentov, rozhodnutie agentov a skontrolovanie agentov.
-    # tick je hodnota kolko krat
+   
     def krok(self):
         #Faza 1 
         rozhodnutia = []
@@ -348,33 +324,31 @@ class Prostredie:
             self.sprav(agent,akcia)
         
         self.tick +=1
-        
-    #TODO Napisat, v tejto funkci su definovane pravidla ako 1 = stena, 0 = prazdne, 2 = jedlo..., a rozhoduje, ci vyber agenta je legalny, a ak je aplikuje ho
-    def sprav(self, agent, action):
+
+    def dopredu(self,agent,uhol, krok):
         y_agent, x_agent = agent.pozicia
         uhol_ = agent.uhol_agent
+        delta_x,delta_y = math.cos(uhol_), math.sin(uhol_)
+        hotove_x,hotove_y = x_agent + delta_x*krok,y_agent + delta_y*krok
+        stara_y, stara_x=math.floor(y_agent),math.floor(x_agent)
+        bunka_X,bunka_Y = math.floor(hotove_x),math.floor(hotove_y)
+        diagonala,blokada = (bunka_Y != stara_y and bunka_X != stara_x),self.rozlozenie_prostredia[bunka_Y][bunka_X] ==1
         
+        if diagonala:
+            if (self.rozlozenie_prostredia[stara_y][bunka_X] ==1 or self.rozlozenie_prostredia[bunka_Y][stara_x] == 1): 
+                blokada = True   
+        if not blokada:
+             agent.pozicia = (hotove_y,hotove_x)
+    
+    #TODO Treba spravit, aby po naburani bola normlana reakcia        
+    def sprav(self, agent, action):
+        uhol_=agent.uhol_agent
         if action == agenti.Agenti.Pohyb.Dopredu.value:
-            delta_x = math.cos(uhol_)
-            delta_y = math.sin(uhol_)
-            x_zaokruhlene = round(delta_x)
-            y_zaokruhlene = round(delta_y)
-            hotove_x = x_agent + delta_x*0.1
-            hotove_y = y_agent + delta_y*0.1
-            stara_y=math.floor(y_agent)
-            stara_x= math.floor(x_agent)
-            bunka_X = math.floor(hotove_x)
-            bunka_Y = math.floor(hotove_y)
-            diagonala = bunka_Y != stara_y and bunka_X != stara_x
-
-            blokada = self.rozlozenie_prostredia[bunka_Y][bunka_X] ==1
-            if diagonala:
-                if (self.rozlozenie_prostredia[stara_y][bunka_X] ==1 or self.rozlozenie_prostredia[bunka_Y][stara_x] == 1):
-                 print(self.rozlozenie[bunka_Y][bunka_X])
-                 blokada = True
-                 
-            if not blokada:
-                 agent.pozicia = (hotove_y,hotove_x)
+           self.dopredu(agent,agent.uhol_agent,krok=0.1)
+        if action == agenti.Agenti.Pohyb.Pravo_chod.value:
+            krok_uhla = agent.uhol_krok
+            self.dopredu(agent,agent.uhol_agent+krok_uhla/2,0.1)   
+            agent.uhol_agent = (agent.uhol_agent + krok_uhla) % ( 2 * math.pi)
 
         if action == agenti.Agenti.Pohyb.DoPrava.value:  
             if isinstance(agent, agenti.Lovec):
@@ -382,7 +356,8 @@ class Prostredie:
                        
             if isinstance(agent, agenti.Korist):
                 agent.uhol_agent = uhol_ + agenti.Korist.uhol_otocenia 
-                            
+            
+                          
         if action == agenti.Agenti.Pohyb.Dolava.value:  
             if isinstance(agent, agenti.Lovec):
                 agent.uhol_agent = uhol_ - agenti.Lovec.uhol_otocenia 
@@ -390,7 +365,6 @@ class Prostredie:
             if isinstance(agent, agenti.Korist):
                     agent.uhol_agent = uhol_ - agenti.Korist.uhol_otocenia 
                     
-        if action == agenti.Agenti.Pohyb.Stop.value:
-             agent.pozicia = (y_agent,x_agent)
+       
                               
         
