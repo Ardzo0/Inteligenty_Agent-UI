@@ -3,14 +3,14 @@ import numpy as np
 import math
 from enum import Enum
 
-#Urcuje vsetko, co maju kazdy jeden agent spolocne
+#Určuje všetko, čo má každý agent spoločné
 class Agenti:
     def __init__(self, sur, uhol):
         self.energia = 10
         self.pozicia = sur
         self.uhol_agent = uhol 
         self.smer_otacania = None
-    class Pohyb(Enum):
+    class Pohyb(Enum):#Zoznám pohybov a ich "kódov"
         Dopredu = 8
         Dozadu = 7
         Dolava = 4
@@ -19,7 +19,7 @@ class Agenti:
         Pravo_chod = 12
         Lavo_chod = 13
 
-    #Agenti budu vyuzivat tuto funkciu pre rozhodovanie na zaklade toho, co budu mat z funkcie range_agentov
+    
     def rozhodnutie(self, vysledok_pozorovania):
         raise NotImplementedError
 
@@ -38,23 +38,23 @@ class Lovec(Agenti):
     vzdialenost_pokracuj = 4
     class Specialne_pohyby(Enum):
         Utok = 3
-    def rozhodnutie(self, vysledok_pozorovania):
-        #prvy_luc, posledny_luc = 0, -1
+    def rozhodnutie(self, vysledok_pozorovania):#Táto funkcia obsahuje väčšiu aktivitu AI, ako ostatné 
+        prvy_luc, posledny_luc = 0, -1
 
         stred = len(vysledok_pozorovania) // 2
         kod,vzdialenost = vysledok_pozorovania[stred]
-        kod_vpravo,vzdialenost_vpravo = vysledok_pozorovania[-1]
-        kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[0]
+        kod_vpravo,vzdialenost_vpravo = vysledok_pozorovania[posledny_luc]
+        kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[prvy_luc]
         volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
         blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
-        moznosti=[self.Pohyb.Pravo_chod.value]
-        zvolena_moznost= np.random.choice(moznosti)
+        moznosti=[self.Pohyb.Pravo_chod.value]#Zoznám možnosti, čo môže spraviť agent na križovatke Rovno, Pravo a ľavo. Zatial len pre testy Práva strana, ale toto bude tiež do nejakej miery náhradené krátko dobou a dlhodobou pamôťou
+        zvolena_moznost= np.random.choice(moznosti)#Generátor, ktorý bude vyberať medzi nimi 
 
 
         def volne(z):
             return 100 if z[0] == 0 else z[1]
 
-
+        #Križovatka
         if kod_vpravo == kod_vlavo and vzdialenost_vpravo == vzdialenost_vlavo and not blokada_vpredu:
                         self.smer_otacania = self.Pohyb.Dolava.value
                         print("Krizovatka")

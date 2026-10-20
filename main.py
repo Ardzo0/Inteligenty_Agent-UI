@@ -12,7 +12,7 @@ parametre = Parametre(sirka =50, vyska=50, n_lovec=1, n_obet=0, seed=np.random.s
 prostredie = Prostredie(parametre)
 
 
-kopia = prostredie.rozlozenie_prostredia.copy()
+kopia = prostredie.rozlozenie_prostredia.copy()#Kopia, render_agentov až po obrázok obsahuje väčšiu aktivitu AI. Forma vysvetlovaňia a debugging 
 def render_agentov(prostredie):
     pozicie = []
     triedy = []

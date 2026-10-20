@@ -27,15 +27,15 @@ class Prostredie:
         self.pocet_obet = self.parametre.n_obet
         self.reset()
     
-    def generacia_prostredia(self):
+    #def generacia_prostredia(self):
         
-        gen = Maze()
-        np.random.seed()
-        gen.generator = Ellers(self.parametre.sirka, self.parametre.vyska)
-        gen.generate()
+        #gen = Maze()
+       # np.random.seed()
+       # gen.generator = Ellers(self.parametre.sirka, self.parametre.vyska)
+       # gen.generate()
 
         
-        return np.array(gen.grid,dtype=int)
+       # return np.array(gen.grid,dtype=int)
         
 
     def reset(self):
@@ -50,15 +50,6 @@ class Prostredie:
         self.rozlozenie_prostredia[49,:] = 1
         self.rozlozenie_prostredia[:,0] = 1
         self.rozlozenie_prostredia[:,49] = 1
-        #self.rozlozenie_prostredia[2,2:] =1
-        #self.rozlozenie_prostredia[8:27,2] =1
-        #self.rozlozenie_prostredia[9,2:8] = 1
-        #self.rozlozenie_prostredia[33:45,4] = 1
-        #self.rozlozenie_prostredia[12:43,6]=1
-        #self.rozlozenie_prostredia[12:43,8]=1
-        #self.rozlozenie_prostredia[6:43,10]=1
-        #self.rozlozenie_prostredia[32:45,2]=1
-        #self.rozlozenie_prostredia[45,2:7]=1
         self.rozlozenie_prostredia[0:23,23]=1
         self.rozlozenie_prostredia[0:23,25]=1
         self.rozlozenie_prostredia[25:49,23]=1
@@ -72,12 +63,13 @@ class Prostredie:
         self.rozlozenie_prostredia[24,24]=2
         self.tick = 0
         
-        #Snaha o generator a nahodnu volbu pre hunterov a koristi
+        #Podľa celkového počtu agentov vyberie tabulku nulových polií pomoocu argwhere teraz tam je 2, pretoze testujem custom spawn v strede
         pocet_agentov = self.pocet_lovec + self.pocet_obet
         nulove_polia = np.argwhere(self.rozlozenie_prostredia == 2)
         indexy_buniek = self.generator_nahodnych_cisiel.choice(len(nulove_polia),pocet_agentov,False)
 
-        uhlik = math.pi/2
+        uhlik = math.pi/2#Štartovací uhol pre agenta v tomto pripade sa každý agent pozerá dole. Všetky uhly sú v radianoch, lebo math.sin, math.cos pracuju s nimi. V buducnosti je možne...
+        #Spraviť nahodné uhly nech im to da od 0 - math.pi * 2
         for poradie,indexy in enumerate(indexy_buniek):
             pozicia = tuple((nulove_polia[indexy]+0.5).tolist())
             if poradie < self.pocet_lovec:
@@ -311,15 +303,15 @@ class Prostredie:
 
    
     def krok(self):
-        #Faza 1 
+        #Faza 1 - Prejde pole vytvorených agentov a načíta pozorovanie pre nich a ich reakcie.
         rozhodnutia = []
         for agent in self.agents:
             pozorovanie = self.range_agentov(agent)
             akcia = agent.rozhodnutie(pozorovanie)
             rozhodnutia.append((agent,akcia))
-            print(type(agent).__name__,akcia)
+            print("Agent:",type(agent).__name__,"\n","Príkaz v kodovom tvare:",akcia,"\n""Pozicia:",agent.pozicia)
             
-        #Faza 2 
+        #Faza 2 - Sprav skontroluje akciu jednotlivého agenta a či je legalna 
         for agent, akcia in rozhodnutia: 
             self.sprav(agent,akcia)
         
@@ -340,30 +332,36 @@ class Prostredie:
         if not blokada:
              agent.pozicia = (hotove_y,hotove_x)
     
-    #TODO Treba spravit, aby po naburani bola normlana reakcia        
+          
     def sprav(self, agent, action):
         uhol_=agent.uhol_agent
         if action == agenti.Agenti.Pohyb.Dopredu.value:
            self.dopredu(agent,agent.uhol_agent,krok=0.1)
         if action == agenti.Agenti.Pohyb.Pravo_chod.value:
-            krok_uhla = agent.uhol_krok
-            self.dopredu(agent,agent.uhol_agent+krok_uhla/2,0.1)   
-            agent.uhol_agent = (agent.uhol_agent + krok_uhla) % ( 2 * math.pi)
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
+            pass
 
-        if action == agenti.Agenti.Pohyb.DoPrava.value:  
+        if action == agenti.Agenti.Pohyb.DoPrava.value:  #Otacanie do prava, ale len uhol agenta, každý agent má teraz math.pi/2
             if isinstance(agent, agenti.Lovec):
                 agent.uhol_agent = uhol_ + agenti.Lovec.uhol_otocenia 
                        
             if isinstance(agent, agenti.Korist):
                 agent.uhol_agent = uhol_ + agenti.Korist.uhol_otocenia 
             
-                          
-        if action == agenti.Agenti.Pohyb.Dolava.value:  
+                    
+        if action == agenti.Agenti.Pohyb.Dolava.value:  #Otacanie do lava, ale len uhol agenta
             if isinstance(agent, agenti.Lovec):
                 agent.uhol_agent = uhol_ - agenti.Lovec.uhol_otocenia 
                        
             if isinstance(agent, agenti.Korist):
-                    agent.uhol_agent = uhol_ - agenti.Korist.uhol_otocenia 
+                agent.uhol_agent = uhol_ - agenti.Korist.uhol_otocenia 
                     
        
                               
