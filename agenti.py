@@ -22,7 +22,6 @@ class Agenti:
         Stop = 9
         Pravo_chod = 12
         Lavo_chod = 13
-
     
     def rozhodnutie(self, vysledok_pozorovania):
         raise NotImplementedError
@@ -31,7 +30,6 @@ class Agenti:
 
 #Specificky typ agenta - Lovec
 class Lovec(Agenti):
-    uhol_krok = 10
     trieda =5
     zivot = True
     uhol_otocenia = math.pi/2
@@ -39,40 +37,56 @@ class Lovec(Agenti):
     vzdialenost_pokracuj = 1.7
     class Specialne_pohyby(Enum):
         Utok = 3
+    def chyba_uhla(self):
+                return (self.Cielovy_uhol - self.uhol_agent + math.pi) % (2 * math.pi) - math.pi    
     def rozhodnutie(self, vysledok_pozorovania):#Táto funkcia obsahuje väčšiu aktivitu AI, ako ostatné 
         prvy_luc, posledny_luc = 0, -1
 
         stred = len(vysledok_pozorovania) // 2
         kod,vzdialenost = vysledok_pozorovania[stred]
-        print("Kod: ",kod,"Vzdialenost: ", vzdialenost,"Pokracuj: ", self.vzdialenost_pokracuj,"Zastav: ", self.zastavujuca_vzdialenost)
         kod_vpravo,vzdialenost_vpravo = vysledok_pozorovania[0]
         kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[-1]
         volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
         blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
+        volno_vpravo = (kod == 0) or (vzdialenost_vpravo > self.vzdialenost_pokracuj)
+        volno_vlavo = (kod == 0) or (vzdialenost_vlavo > self.vzdialenost_pokracuj)
+        blokda_vpravo = (kod == 1) and (vzdialenost_vpravo < self.zastavujuca_vzdialenost)
+        blokada_vlavo = (kod == 1) and (vzdialenost_vlavo < self.zastavujuca_vzdialenost)
         moznosti=[self.Pohyb.DoPrava.value,self.Pohyb.Dolava.value,self.Pohyb.Dopredu.value]#Zoznám možnosti, čo môže spraviť agent na križovatke Rovno, Pravo a ľavo. Zatial len pre testy Práva strana, ale toto bude tiež do nejakej miery náhradené krátko dobou a dlhodobou pamôťou
         zvolena_moznost= np.random.choice(moznosti)#Generátor, ktorý bude vyberať medzi nimi 
-        
+ 
 
         def volne(z):
             return 100 if z[0] == 0 else z[1]
 
-        if volno_vpredu  and (kod_vlavo and kod_vpravo) ==0:
+
+        if volno_vpredu  and (kod_vlavo and kod_vpravo)==0: #Funguje !!!!!!!!! 
             self.smer_otacania = zvolena_moznost
-            return self.smer_otacania
+            return self.smer_otacania    
             
+        #if blokada_vpredu:
+        #    if volno_vlavo and volno_vpravo:
+        #        self.smer_otacania = self.Pohyb.DoPrava.value
+        #        return self.smer_otacania
+        #    if volno_vpravo:
+        #        self.smer_otacania = self.Pohyb.DoPrava.value
+        #        return self.smer_otacania
+        #    if volno_vlavo:
+        #        self.smer_otacania = self.Pohyb.Dolava.value
+        #        return self.smer_otacania
+        
         if self.smer_otacania is None:
             
             if not blokada_vpredu:
                 return self.Pohyb.Dopredu.value
-                
-            
+
             vlavo = sum(volne(z) for z in vysledok_pozorovania[:stred])
             vpravo = sum(volne(z) for z in vysledok_pozorovania[stred +1:])
-            
+
             if vlavo > vpravo:
                 self.smer_otacania =  self.Pohyb.Dolava.value  
             else:
-               self.smer_otacania = self.Pohyb.DoPrava.value 
+                self.smer_otacania = self.Pohyb.DoPrava.value 
             return self.smer_otacania
 
 

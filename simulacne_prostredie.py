@@ -320,20 +320,7 @@ class Prostredie:
         
         self.tick +=1
 
-    def dopredu(self,agent,uhol, krok):
-        y_agent, x_agent = agent.pozicia
-        uhol_ = agent.uhol_agent
-        delta_x,delta_y = math.cos(uhol_), math.sin(uhol_)
-        hotove_x,hotove_y = x_agent + delta_x*krok,y_agent + delta_y*krok
-        stara_y, stara_x=math.floor(y_agent),math.floor(x_agent)
-        bunka_X,bunka_Y = math.floor(hotove_x),math.floor(hotove_y)
-        diagonala,blokada = (bunka_Y != stara_y and bunka_X != stara_x),self.rozlozenie_prostredia[bunka_Y][bunka_X] ==1
         
-        if diagonala:
-            if (self.rozlozenie_prostredia[stara_y][bunka_X] ==1 or self.rozlozenie_prostredia[bunka_Y][stara_x] == 1): 
-                blokada = True   
-        if not blokada:
-             agent.pozicia = (hotove_y,hotove_x)
     
     def rychlosti(self,agent, akcia):
         P = agenti.Agenti.Pohyb
@@ -343,8 +330,6 @@ class Prostredie:
              return 0.0, -agent.w_max
         if akcia == P.DoPrava.value:
              return 0.0, agent.w_max
-        if akcia == P.Pravo_chod.value:
-             return agent.v_max, agent.w_obluk
         if akcia == P.Stop.value:
              return 0.0,0.0
         raise ValueError(f"Nepoznám chuju: {akcia}")
@@ -382,8 +367,8 @@ class Prostredie:
         v,w = 0,0
         v,w = self.rychlosti(agent, action)
         y_agent,x_agent = self.integruj(agent, v,w)
+        print(type(agent).__name__, agent.uhol_agent, action)
         y_agent,x_agent = self.vytlac_zo_steny(y_agent,x_agent,agent.polomer)
-        print("Agent: ",type(agent).__name__ ,"\n","Akcia: ",action,"Rýchlosť: ", v,"Uhlova rychlost: ",w,"\n","Uhol agent:", agent.uhol_agent,"Agent otacanie: ", agent.smer_otacania)
         if self.rozlozenie_prostredia[math.floor(y_agent)][math.floor(x_agent)] == 1:
            return
         
