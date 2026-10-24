@@ -49,7 +49,7 @@ class Lovec(Agenti):
         kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[-1]
         volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
         blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
-        moznosti=[self.Pohyb.Pravo_chod.value]#Zoznám možnosti, čo môže spraviť agent na križovatke Rovno, Pravo a ľavo. Zatial len pre testy Práva strana, ale toto bude tiež do nejakej miery náhradené krátko dobou a dlhodobou pamôťou
+        moznosti=[self.Pohyb.DoPrava.value,self.Pohyb.Dolava.value,self.Pohyb.Dopredu.value]#Zoznám možnosti, čo môže spraviť agent na križovatke Rovno, Pravo a ľavo. Zatial len pre testy Práva strana, ale toto bude tiež do nejakej miery náhradené krátko dobou a dlhodobou pamôťou
         zvolena_moznost= np.random.choice(moznosti)#Generátor, ktorý bude vyberať medzi nimi 
         
 
@@ -57,11 +57,11 @@ class Lovec(Agenti):
             return 100 if z[0] == 0 else z[1]
 
         if volno_vpredu  and (kod_vlavo and kod_vpravo) ==0:
-            self.smer_otacania = self.Pohyb.DoPrava.value
+            self.smer_otacania = zvolena_moznost
             return self.smer_otacania
-            print("Nastal som")
+            
         if self.smer_otacania is None:
-            print("Vlavo: ", vzdialenost_vlavo, "Vpravo: ", vzdialenost_vpravo)
+            
             if not blokada_vpredu:
                 return self.Pohyb.Dopredu.value
                 
