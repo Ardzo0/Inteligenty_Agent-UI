@@ -9,7 +9,7 @@ np.set_printoptions(linewidth=300)
 
 
 
-parametre = Parametre(sirka =50, vyska=50, n_lovec=1, n_obet=0, seed=np.random.seed())
+parametre = Parametre(sirka =25, vyska=25, n_lovec=1, n_obet=0, seed=np.random.seed())
 prostredie = Prostredie(parametre)
 
 

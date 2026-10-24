@@ -42,32 +42,17 @@ class Prostredie:
         self.generator_nahodnych_cisiel = np.random.default_rng(self.parametre.seed)
        
         
-        #self.rozlozenie_prostredia = self.generacia_prostredia() 
+        self.rozlozenie_prostredia = self.generacia_prostredia() 
+        self.vyska, self.sirka = self.rozlozenie_prostredia.shape
         #Vytvaranie Prostredia s grid tematikou 
-        self.rozlozenie_prostredia = np.zeros((self.parametre.vyska, self.parametre.sirka), dtype=int)
-        self.rozlozenie_prostredia[0,:] = 1
-        self.rozlozenie_prostredia[49,:] = 1
-        self.rozlozenie_prostredia[:,0] = 1
-        self.rozlozenie_prostredia[:,49] = 1
-        self.rozlozenie_prostredia[0:23,23]=1
-        self.rozlozenie_prostredia[0:23,25]=1
-        self.rozlozenie_prostredia[25:49,23]=1
-        self.rozlozenie_prostredia[25:49,25]=1
-        self.rozlozenie_prostredia[23,0:23]=1
-        self.rozlozenie_prostredia[25,0:23]=1
-        self.rozlozenie_prostredia[23,0:24]=1
-        self.rozlozenie_prostredia[25,0:23]=1
-        self.rozlozenie_prostredia[25,25:49]=1
-        self.rozlozenie_prostredia[23,25:49]=1
-        self.rozlozenie_prostredia[24,24]=2
         self.tick = 0
         
         #Podľa celkového počtu agentov vyberie tabulku nulových polií pomoocu argwhere teraz tam je 2, pretoze testujem custom spawn v strede
         pocet_agentov = self.pocet_lovec + self.pocet_obet
-        nulove_polia = np.argwhere(self.rozlozenie_prostredia == 2)
+        nulove_polia = np.argwhere(self.rozlozenie_prostredia == 0)
         indexy_buniek = self.generator_nahodnych_cisiel.choice(len(nulove_polia),pocet_agentov,False)
 
-        uhlik = math.pi/2#Štartovací uhol pre agenta v tomto pripade sa každý agent pozerá dole. Všetky uhly sú v radianoch, lebo math.sin, math.cos pracuju s nimi. V buducnosti je možne...
+        uhlik = 0#math.pi/2#Štartovací uhol pre agenta v tomto pripade sa každý agent pozerá dole. Všetky uhly sú v radianoch, lebo math.sin, math.cos pracuju s nimi. V buducnosti je možne...
         #Spraviť nahodné uhly nech im to da od 0 - math.pi * 2
         for poradie,indexy in enumerate(indexy_buniek):
             pozicia = tuple((nulove_polia[indexy]+0.5).tolist())
@@ -128,7 +113,7 @@ class Prostredie:
                     while dof < 8:
                         bunka_x = math.floor(ray_x)
                         bunka_y = math.floor(ray_y)
-                        if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                        if 0 <= bunka_y < self.vyska and 0 <= bunka_x < self.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
                             hx = ray_x
                             hy= ray_y
                             distH = math.sqrt((hx-x_agent)*(hx-x_agent)+(hy-y_agent)*(hy-y_agent))
@@ -160,7 +145,7 @@ class Prostredie:
                     while dof < 8:
                         bunka_x = math.floor(ray_x)
                         bunka_y = math.floor(ray_y)
-                        if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                        if 0 <= bunka_y < self.vyska and 0 <= bunka_x < self.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
                             dof = 8
                             vx= ray_x
                             vy= ray_y
@@ -240,7 +225,7 @@ class Prostredie:
                     while dof < 8:
                         bunka_x = math.floor(ray_x)
                         bunka_y = math.floor(ray_y)
-                        if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                        if 0 <= bunka_y < self.vyska and 0 <= bunka_x < self.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
                             hx = ray_x
                             hy= ray_y
                             distH = math.sqrt((hx-x_agent)*(hx-x_agent)+(hy-y_agent)*(hy-y_agent))
@@ -272,7 +257,7 @@ class Prostredie:
                     while dof < 8:
                         bunka_x = math.floor(ray_x)
                         bunka_y = math.floor(ray_y)
-                        if 0 <= bunka_y < self.parametre.vyska and 0 <= bunka_x < self.parametre.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
+                        if 0 <= bunka_y < self.vyska and 0 <= bunka_x < self.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
                             dof = 8
                             vx= ray_x
                             vy= ray_y
@@ -332,6 +317,8 @@ class Prostredie:
              return 0.0, agent.w_max
         if akcia == P.Stop.value:
              return 0.0,0.0
+        if akcia == P.OtocenieKUhlu.value:
+             return 0.0, max(-agent.w_max, min(agent.w_max, agent.chyba_uhla()))
         raise ValueError(f"Nepoznám chuju: {akcia}")
     
     def integruj(self, agent, v,w):
@@ -344,7 +331,7 @@ class Prostredie:
          return y_agent,x_agent
     
     def vytlac_zo_steny(self, y_agent, x_agent, r):
-         vyska, sirka = self.parametre.vyska, self.parametre.sirka
+         vyska, sirka = self.vyska, self.sirka
          for _ in range(2):
               by, bx = math.floor(y_agent), math.floor(x_agent)
               for cy in range(by -1, by + 2):
