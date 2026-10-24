@@ -10,6 +10,10 @@ class Agenti:
         self.pozicia = sur
         self.uhol_agent = uhol 
         self.smer_otacania = None
+        self.polomer = 0.3
+        self.v_max = 0.1
+        self.w_max = math.radians(11)
+        self.w_obluk = math.radians(11)
     class Pohyb(Enum):#Zoznám pohybov a ich "kódov"
         Dopredu = 8
         Dozadu = 7
@@ -23,10 +27,7 @@ class Agenti:
     def rozhodnutie(self, vysledok_pozorovania):
         raise NotImplementedError
 
-    def ratanie_delta_pozicie(self):
-        dx=math.cos(self.uhol_agent) * 5
-        dy=math.sin(self.uhol_agent) * 5    
-        return dx,dy
+    
 
 #Specificky typ agenta - Lovec
 class Lovec(Agenti):
@@ -34,8 +35,8 @@ class Lovec(Agenti):
     trieda =5
     zivot = True
     uhol_otocenia = math.pi/2
-    zastavujuca_vzdialenost = 1
-    vzdialenost_pokracuj = 4
+    zastavujuca_vzdialenost = 1.2
+    vzdialenost_pokracuj = 1.7
     class Specialne_pohyby(Enum):
         Utok = 3
     def rozhodnutie(self, vysledok_pozorovania):#Táto funkcia obsahuje väčšiu aktivitu AI, ako ostatné 
@@ -43,28 +44,25 @@ class Lovec(Agenti):
 
         stred = len(vysledok_pozorovania) // 2
         kod,vzdialenost = vysledok_pozorovania[stred]
-        kod_vpravo,vzdialenost_vpravo = vysledok_pozorovania[posledny_luc]
-        kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[prvy_luc]
+        print("Kod: ",kod,"Vzdialenost: ", vzdialenost,"Pokracuj: ", self.vzdialenost_pokracuj,"Zastav: ", self.zastavujuca_vzdialenost)
+        kod_vpravo,vzdialenost_vpravo = vysledok_pozorovania[0]
+        kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[-1]
         volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
         blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
         moznosti=[self.Pohyb.Pravo_chod.value]#Zoznám možnosti, čo môže spraviť agent na križovatke Rovno, Pravo a ľavo. Zatial len pre testy Práva strana, ale toto bude tiež do nejakej miery náhradené krátko dobou a dlhodobou pamôťou
         zvolena_moznost= np.random.choice(moznosti)#Generátor, ktorý bude vyberať medzi nimi 
-
+        
 
         def volne(z):
             return 100 if z[0] == 0 else z[1]
 
-        #Križovatka
-        if kod_vpravo == kod_vlavo and vzdialenost_vpravo == vzdialenost_vlavo and not blokada_vpredu:
-                        self.smer_otacania = self.Pohyb.Dolava.value
-                        print("Krizovatka")
-                        print("Vlavo_kod:" ,kod_vlavo,"Vpravo_kod: ",kod_vpravo)
-                        print(vzdialenost_vlavo,"<--Vlavo",vzdialenost_vpravo,"<----Vpravo")
-                        return zvolena_moznost
-        
+        if volno_vpredu  and (kod_vlavo and kod_vpravo) ==0:
+            self.smer_otacania = self.Pohyb.DoPrava.value
+            return self.smer_otacania
+            print("Nastal som")
         if self.smer_otacania is None:
+            print("Vlavo: ", vzdialenost_vlavo, "Vpravo: ", vzdialenost_vpravo)
             if not blokada_vpredu:
-                print("Pred")
                 return self.Pohyb.Dopredu.value
                 
             
@@ -105,6 +103,7 @@ class Korist(Agenti):
 
         def volne(z):
             return 100 if z[0] == 0 else z[1]
+
         
         if self.smer_otacania is None:
             if not blokada_vpredu:

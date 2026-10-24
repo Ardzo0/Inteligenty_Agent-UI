@@ -27,23 +27,22 @@ class Prostredie:
         self.pocet_obet = self.parametre.n_obet
         self.reset()
     
-    #def generacia_prostredia(self):
+    def generacia_prostredia(self):
         
-        #gen = Maze()
-       # np.random.seed()
-       # gen.generator = Ellers(self.parametre.sirka, self.parametre.vyska)
-       # gen.generate()
+        gen = Maze()
+        np.random.seed()
+        gen.generator = Ellers(self.parametre.sirka, self.parametre.vyska)
+        gen.generate()
 
         
-       # return np.array(gen.grid,dtype=int)
+        return np.array(gen.grid,dtype=int)
         
 
     def reset(self):
         self.generator_nahodnych_cisiel = np.random.default_rng(self.parametre.seed)
        
         
-        #self.rozlozenie_prostredia = self.generacia_prostredia()  
-
+        #self.rozlozenie_prostredia = self.generacia_prostredia() 
         #Vytvaranie Prostredia s grid tematikou 
         self.rozlozenie_prostredia = np.zeros((self.parametre.vyska, self.parametre.sirka), dtype=int)
         self.rozlozenie_prostredia[0,:] = 1
@@ -82,7 +81,7 @@ class Prostredie:
         visible=[]
         
         if isinstance(agentus_manus,agenti.Lovec):
-                pocet_rays = 5
+                pocet_rays = 35
                 y_agent,x_agent = agentus_manus.pozicia
                 vy,vx,hy,hx = y_agent, x_agent,y_agent,x_agent 
                 uhol = agentus_manus.uhol_agent   
@@ -93,7 +92,7 @@ class Prostredie:
                 range_lovec = 9 
                 
                
-                fov = math.radians(90)
+                fov = math.radians(180)
                 for i in range(pocet_rays):
                     dof=0
                     distH,distV=1000000,1000000
@@ -175,11 +174,13 @@ class Prostredie:
                             ray_x=vx
                             ray_y=vy
                             final_distance = distV
+                            final_distance = max(0, final_distance - agentus_manus.polomer)
                             oznacenie = pomocne_oznacenie_v
                     else:# distH <distV
                             ray_x=hx
                             ray_y=hy    
                             final_distance = distH
+                            final_distance = max(0, final_distance - agentus_manus.polomer)
                             oznacenie = pomocne_oznacenie_h
                     if final_distance > range_lovec:
                             oznacenie =0
@@ -285,11 +286,13 @@ class Prostredie:
                         ray_x=vx
                         ray_y=vy
                         final_distance = distV
+                        final_distance = max(0, final_distance - agentus_manus.polomer)
                         oznacenie = pomocne_oznacenie_v
                     else: #distH <distV
                         ray_x=hx
                         ray_y=hy    
                         final_distance = distH
+                        final_distance = max(0, final_distance - agentus_manus.polomer)
                         oznacenie = pomocne_oznacenie_h
                     
                              
@@ -309,7 +312,7 @@ class Prostredie:
             pozorovanie = self.range_agentov(agent)
             akcia = agent.rozhodnutie(pozorovanie)
             rozhodnutia.append((agent,akcia))
-            print("Agent:",type(agent).__name__,"\n","Príkaz v kodovom tvare:",akcia,"\n""Pozicia:",agent.pozicia)
+            #print("Agent:",type(agent).__name__,"\n","Príkaz v kodovom tvare:",akcia,"\n""Pozicia:",agent.pozicia)
             
         #Faza 2 - Sprav skontroluje akciu jednotlivého agenta a či je legalna 
         for agent, akcia in rozhodnutia: 
@@ -332,36 +335,62 @@ class Prostredie:
         if not blokada:
              agent.pozicia = (hotove_y,hotove_x)
     
-          
-    def sprav(self, agent, action):
-        uhol_=agent.uhol_agent
-        if action == agenti.Agenti.Pohyb.Dopredu.value:
-           self.dopredu(agent,agent.uhol_agent,krok=0.1)
-        if action == agenti.Agenti.Pohyb.Pravo_chod.value:
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            #TODO Spravit otačanie cca. štvrť kruhom do prava, Kubko
-            pass
-
-        if action == agenti.Agenti.Pohyb.DoPrava.value:  #Otacanie do prava, ale len uhol agenta, každý agent má teraz math.pi/2
-            if isinstance(agent, agenti.Lovec):
-                agent.uhol_agent = uhol_ + agenti.Lovec.uhol_otocenia 
-                       
-            if isinstance(agent, agenti.Korist):
-                agent.uhol_agent = uhol_ + agenti.Korist.uhol_otocenia 
-            
-                    
-        if action == agenti.Agenti.Pohyb.Dolava.value:  #Otacanie do lava, ale len uhol agenta
-            if isinstance(agent, agenti.Lovec):
-                agent.uhol_agent = uhol_ - agenti.Lovec.uhol_otocenia 
-                       
-            if isinstance(agent, agenti.Korist):
-                agent.uhol_agent = uhol_ - agenti.Korist.uhol_otocenia 
+    def rychlosti(self,agent, akcia):
+        P = agenti.Agenti.Pohyb
+        if akcia == P.Dopredu.value:
+             return agent.v_max, 0.0
+        if akcia == P.Dolava.value:
+             return 0.0, -agent.w_max
+        if akcia == P.DoPrava.value:
+             return 0.0, agent.w_max
+        if akcia == P.Pravo_chod.value:
+             return agent.v_max, agent.w_obluk
+        if akcia == P.Stop.value:
+             return 0.0,0.0
+        raise ValueError(f"Nepoznám chuju: {akcia}")
+    
+    def integruj(self, agent, v,w):
+         y_agent, x_agent = agent.pozicia
+         uhol = agent.uhol_agent
+         stred = uhol + w /2
+         y_agent += v * math.sin(stred)  
+         x_agent += v * math.cos(stred)
+         agent.uhol_agent = (uhol +w) % (2 * math.pi)
+         return y_agent,x_agent
+    
+    def vytlac_zo_steny(self, y_agent, x_agent, r):
+         vyska, sirka = self.parametre.vyska, self.parametre.sirka
+         for _ in range(2):
+              by, bx = math.floor(y_agent), math.floor(x_agent)
+              for cy in range(by -1, by + 2):
+                   for cx in range(bx -1, bx+2):
+                        if not (0 <= cy < vyska and 0 <= cx < sirka):
+                            continue
+                        if self.rozlozenie_prostredia[cy][cx] !=1:
+                             continue
+                        ny = min(max(y_agent,cy), cy + 1)
+                        nx = min(max(x_agent,cx),cx+1)
+                        dy,dx = y_agent -ny, x_agent - nx
+                        d2 = dy *dy + dx*dx
+                        if 1e-12 < d2 < r *r:
+                             d =math.sqrt(d2)
+                             y_agent += dy / d *(r-d)
+                             x_agent += dx/ d * (r-d)
+         return y_agent,x_agent   
+                     
+    def sprav(self, agent, action): 
+        v,w = 0,0
+        v,w = self.rychlosti(agent, action)
+        y_agent,x_agent = self.integruj(agent, v,w)
+        y_agent,x_agent = self.vytlac_zo_steny(y_agent,x_agent,agent.polomer)
+        print("Agent: ",type(agent).__name__ ,"\n","Akcia: ",action,"Rýchlosť: ", v,"Uhlova rychlost: ",w,"\n","Uhol agent:", agent.uhol_agent,"Agent otacanie: ", agent.smer_otacania)
+        if self.rozlozenie_prostredia[math.floor(y_agent)][math.floor(x_agent)] == 1:
+           return
+        
+        agent.pozicia = (y_agent,x_agent)
+        
+        
+        
                     
        
                               

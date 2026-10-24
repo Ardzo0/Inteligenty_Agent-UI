@@ -1,6 +1,7 @@
 from simulacne_prostredie import Parametre, Prostredie
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as pltm
 import agenti
 import math
 np.set_printoptions(threshold=np.inf)
@@ -20,7 +21,7 @@ def render_agentov(prostredie):
     for agent in prostredie.agents:
             if agent.zivot:
                 pos_y,pos_x = agent.pozicia
-                
+                pltm.patches.Circle(agent.polomer)
                 pozicie.append([pos_x-0.5,pos_y-0.5])
                 triedy.append(agent.trieda)
 
