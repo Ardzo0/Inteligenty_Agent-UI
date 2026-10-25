@@ -311,12 +311,6 @@ class Prostredie:
         P = agenti.Agenti.Pohyb
         if akcia == P.Dopredu.value:
              return agent.v_max, 0.0
-        if akcia == P.Dolava.value:
-             return 0.0, -agent.w_max
-        if akcia == P.DoPrava.value:
-             return 0.0, agent.w_max
-        if akcia == P.Stop.value:
-             return 0.0,0.0
         if akcia == P.OtocenieKUhlu.value:
              return 0.0, max(-agent.w_max, min(agent.w_max, agent.chyba_uhla()))
         raise ValueError(f"Nepoznám chuju: {akcia}")

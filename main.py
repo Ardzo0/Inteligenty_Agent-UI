@@ -35,7 +35,7 @@ fig, ax = plt.subplots()
 obrazok_prostredai = ax.imshow(prostredie.rozlozenie_prostredia, cmap="gray_r", vmin=0, vmax=11)
 obrazok = ax.scatter(pozicie[:,0], pozicie[:,1], c = triedy, vmin=0, vmax=11)
 
-for _ in range(1000):
+while plt.fignum_exists(fig.number):
     prostredie.krok()
     pozicie, triedy = render_agentov(prostredie)
     obrazok_prostredai.set_array(kopia)
