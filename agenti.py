@@ -28,7 +28,8 @@ class Agenti:
         return (self.cielovy_uhol - self.uhol_agent + math.pi) % (2 * math.pi) - math.pi
     
     def zatocenie(self,posun):
-        kvadrant = round(self.uhol_agent/ (math.pi/2))
+        kvadrant = round(self.uhol_agent/ (math.pi/2))#Svetová strana Kvadrant 0 má uhol a na obrázovke ide doprava
+        #1 má uhol pi/2 a na obrázovke ide dole, 2 má uhol pi a na obrázovke ide doľava, 3 má uhol 3pi/2 a na obrázovke hore
         self.cielovy_uhol = ((kvadrant + posun) % 4) * math.pi/2
         return self.Pohyb.OtocenieKUhlu.value
     def vyber(self, posuny):
@@ -78,18 +79,58 @@ class Lovec(Agenti):
             elif not blokada_vpredu:
                 return self.Pohyb.Dopredu.value
 
-        if volno_vpredu and volno_vpravo and volno_vlavo:
-            return self.vyber([0, +1, -1])
-        if volno_vpredu and volno_vlavo:
-            return self.zatocenie(-1)
-        if volno_vpredu and volno_vpravo:
-            return self.zatocenie(+1)
+        if volno_vpredu:
+            if volno_vpravo and volno_vlavo:
+                y,x = self.pozicia
+                y_agent = math.floor(y)
+                x_agent = math.floor(x)
+                y_agent +=0.5
+                x_agent +=0.5 
+                self.pozicia =((y_agent),(x_agent))
+                return self.vyber([0, +1, -1])
+            if  volno_vlavo and not volno_vpravo:
+                y,x = self.pozicia
+                y_agent = math.floor(y)
+                x_agent = math.floor(x)
+                y_agent +=0.5
+                x_agent +=0.5  
+                self.pozicia =((y_agent),(x_agent))
+                return self.zatocenie(-1)
+            if  volno_vpravo and not volno_vlavo:
+                y,x = self.pozicia
+                y_agent = math.floor(y)
+                x_agent = math.floor(x)
+                y_agent +=0.5
+                x_agent +=0.5 
+                self.pozicia =((y_agent),(x_agent))
+                return self.zatocenie(+1)
+       
         if blokada_vpredu:
             if volno_vlavo and volno_vpravo:
+                y,x = self.pozicia
+                y_agent = math.floor(y)
+                x_agent = math.floor(x)
+                y_agent +=0.5
+                x_agent +=0.5  
+                self.pozicia =((y_agent),(x_agent))
                 return self.vyber([+1,-1])
             if volno_vpravo:
+                y,x = self.pozicia
+                y_agent = math.floor(y)
+                x_agent = math.floor(x)
+                y_agent +=0.5
+                x_agent +=0.5 
+                  
+                self.pozicia =((y_agent),(x_agent))
                 return self.zatocenie(+1)
             if volno_vlavo:
+                y,x = self.pozicia
+                y_agent = math.floor(y)
+                x_agent = math.floor(x)
+                y_agent +=0.5
+                x_agent +=0.5 
+                   
+                self.pozicia =((y_agent),(x_agent))
                 return self.zatocenie(-1)
             return self.zatocenie(+2)
         return self.Pohyb.Dopredu.value
