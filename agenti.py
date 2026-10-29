@@ -86,24 +86,42 @@ class Lovec(Agenti):
                 x_agent = math.floor(x)
                 y_agent +=0.5
                 x_agent +=0.5 
-                self.pozicia =((y_agent),(x_agent))
-                return self.vyber([0, +1, -1])
+                rozdiel_x = abs(x_agent - x)
+                rozdiel_y = abs(y_agent - y)
+                vzdialenost_stred = (rozdiel_y,rozdiel_x)
+                tolerancia = (0.05,0.05)
+                if (vzdialenost_stred) > tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (vzdialenost_stred) <= tolerancia:
+                    return self.vyber([0, +1, -1])
             if  volno_vlavo and not volno_vpravo:
                 y,x = self.pozicia
                 y_agent = math.floor(y)
                 x_agent = math.floor(x)
                 y_agent +=0.5
                 x_agent +=0.5  
-                self.pozicia =((y_agent),(x_agent))
-                return self.zatocenie(-1)
+                rozdiel_x = abs(x_agent - x)
+                rozdiel_y = abs(y_agent - y)
+                vzdialenost_stred = (rozdiel_y,rozdiel_x)
+                tolerancia = (0.05,0.05)
+                if (vzdialenost_stred) > tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (vzdialenost_stred) <= tolerancia:
+                    return self.zatocenie(-1)
             if  volno_vpravo and not volno_vlavo:
                 y,x = self.pozicia
                 y_agent = math.floor(y)
                 x_agent = math.floor(x)
                 y_agent +=0.5
                 x_agent +=0.5 
-                self.pozicia =((y_agent),(x_agent))
-                return self.zatocenie(+1)
+                rozdiel_x = abs(x_agent - x)
+                rozdiel_y = abs(y_agent - y)
+                vzdialenost_stred = (rozdiel_y,rozdiel_x)
+                tolerancia = (0.05,0.05)
+                if (vzdialenost_stred) > tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (vzdialenost_stred) <= tolerancia:
+                    return self.zatocenie(+1)
        
         if blokada_vpredu:
             if volno_vlavo and volno_vpravo:
@@ -112,26 +130,42 @@ class Lovec(Agenti):
                 x_agent = math.floor(x)
                 y_agent +=0.5
                 x_agent +=0.5  
-                self.pozicia =((y_agent),(x_agent))
-                return self.vyber([+1,-1])
+                rozdiel_x = abs(x_agent - x)
+                rozdiel_y = abs(y_agent - y)
+                vzdialenost_stred = (rozdiel_y,rozdiel_x)
+                tolerancia = (0.05,0.05)
+                if (vzdialenost_stred) > tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (vzdialenost_stred) <= tolerancia:
+                    return self.vyber([+1,-1])
             if volno_vpravo:
                 y,x = self.pozicia
                 y_agent = math.floor(y)
                 x_agent = math.floor(x)
                 y_agent +=0.5
                 x_agent +=0.5 
-                  
-                self.pozicia =((y_agent),(x_agent))
-                return self.zatocenie(+1)
+                rozdiel_x = abs(x_agent - x)   
+                rozdiel_y = abs(y_agent - y)  
+                vzdialenost_stred = (rozdiel_y,rozdiel_x)
+                tolerancia = (0.05,0.05)
+                if (vzdialenost_stred) > tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (vzdialenost_stred) <= tolerancia:
+                    return self.zatocenie(+1)
             if volno_vlavo:
                 y,x = self.pozicia
                 y_agent = math.floor(y)
                 x_agent = math.floor(x)
                 y_agent +=0.5
                 x_agent +=0.5 
-                   
-                self.pozicia =((y_agent),(x_agent))
-                return self.zatocenie(-1)
+                rozdiel_x = abs(x_agent - x)   
+                rozdiel_y = abs(y_agent - y)
+                vzdialenost_stred = (rozdiel_y,rozdiel_x)
+                tolerancia = (0.05,0.05)
+                if (vzdialenost_stred) > tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (vzdialenost_stred) <= tolerancia:
+                    return self.zatocenie(-1)
             return self.zatocenie(+2)
         return self.Pohyb.Dopredu.value
     
