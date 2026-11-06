@@ -6,6 +6,7 @@ from enum import Enum
 #Určuje všetko, čo má každý agent spoločné
 class Agenti:
     vzdialenost_ignorovania_kriz = 1.5
+    tolerancia = 0.05
     def __init__(self, sur, uhol):
         self.energia = 10
         self.pozicia = sur
@@ -38,18 +39,49 @@ class Agenti:
             self.miesto_konca == self.pozicia
             return self.Pohyb.Dopredu.value
         return self.zatocenie(posun)
+
+    def smer(self):
+        smer =  round(self.uhol_agent/(math.pi/2)) % 4
+        if smer == 0:
+            smer_pohybu = 1
+            y,x = self.pozicia
+            x_pos = math.floor(x)
+            y_pos = math.floor(y)
+            vzd = ((x_pos + 0.5) - x) * smer_pohybu
+        if smer == 1:
+            smer_pohybu = 1
+            y,x = self.pozicia
+            x_pos = math.floor(x)
+            y_pos = math.floor(y)
+            vzd = ((y_pos + 0.5) - y) * smer_pohybu
+        if smer == 2:
+            smer_pohybu = -1
+            y,x = self.pozicia
+            x_pos = math.floor(x)
+            y_pos = math.floor(y)
+            vzd = ((x_pos + 0.5) - x) * smer_pohybu
+        if smer == 3:
+            smer_pohybu = -1    
+            y,x = self.pozicia
+            x_pos = math.floor(x)
+            y_pos = math.floor(y)
+            vzd = ((y_pos + 0.5) - y) * smer_pohybu
+        return vzd
+
 #Specificky typ agenta - Lovec
 class Lovec(Agenti):
+    range = 8
     trieda =5
     zivot = True
     uhol_otocenia = math.pi/2
     zastavujuca_vzdialenost = 0.4
     vzdialenost_pokracuj = 1.7
     prah_bok = 0.7
+   
     class Specialne_pohyby(Enum):
         Utok = 3
     
-    def rozhodnutie(self, vysledok_pozorovania):#Táto funkcia obsahuje väčšiu aktivitu AI, ako ostatné 
+    def rozhodnutie(self, vysledok_pozorovania):#Táto funkcia obsahuje väčšiu aktivitu AI ako ostatné 
         
         if self.cielovy_uhol is not None:
             if abs(self.chyba_uhla()) < 1e-6:
@@ -81,90 +113,48 @@ class Lovec(Agenti):
 
         if volno_vpredu:
             if volno_vpravo and volno_vlavo:
-                y,x = self.pozicia
-                y_agent = math.floor(y)
-                x_agent = math.floor(x)
-                y_agent +=0.5
-                x_agent +=0.5 
-                rozdiel_x = abs(x_agent - x)
-                rozdiel_y = abs(y_agent - y)
-                vzdialenost_stred = (rozdiel_y,rozdiel_x)
-                tolerancia = (0.05,0.05)
-                if (vzdialenost_stred) > tolerancia:
+                vzd_stred = self.smer()
+                
+                if (vzd_stred) > self.tolerancia:
                     return self.Pohyb.Dopredu.value
-                if (vzdialenost_stred) <= tolerancia:
+                if (vzd_stred) <= self.tolerancia:
                     return self.vyber([0, +1, -1])
             if  volno_vlavo and not volno_vpravo:
-                y,x = self.pozicia
-                y_agent = math.floor(y)
-                x_agent = math.floor(x)
-                y_agent +=0.5
-                x_agent +=0.5  
-                rozdiel_x = abs(x_agent - x)
-                rozdiel_y = abs(y_agent - y)
-                vzdialenost_stred = (rozdiel_y,rozdiel_x)
-                tolerancia = (0.05,0.05)
-                if (vzdialenost_stred) > tolerancia:
+                vzd_stred = self.smer()
+
+                if (vzd_stred) > self.tolerancia:
                     return self.Pohyb.Dopredu.value
-                if (vzdialenost_stred) <= tolerancia:
+                if (vzd_stred) <= self.tolerancia:
                     return self.zatocenie(-1)
             if  volno_vpravo and not volno_vlavo:
-                y,x = self.pozicia
-                y_agent = math.floor(y)
-                x_agent = math.floor(x)
-                y_agent +=0.5
-                x_agent +=0.5 
-                rozdiel_x = abs(x_agent - x)
-                rozdiel_y = abs(y_agent - y)
-                vzdialenost_stred = (rozdiel_y,rozdiel_x)
-                tolerancia = (0.05,0.05)
-                if (vzdialenost_stred) > tolerancia:
+                vzd_stred = self.smer()      
+
+                if (vzd_stred) > self.tolerancia:
                     return self.Pohyb.Dopredu.value
-                if (vzdialenost_stred) <= tolerancia:
+                if (vzd_stred) <= self.tolerancia:
                     return self.zatocenie(+1)
        
         if blokada_vpredu:
             if volno_vlavo and volno_vpravo:
-                y,x = self.pozicia
-                y_agent = math.floor(y)
-                x_agent = math.floor(x)
-                y_agent +=0.5
-                x_agent +=0.5  
-                rozdiel_x = abs(x_agent - x)
-                rozdiel_y = abs(y_agent - y)
-                vzdialenost_stred = (rozdiel_y,rozdiel_x)
-                tolerancia = (0.05,0.05)
-                if (vzdialenost_stred) > tolerancia:
+                vzd_stred = self.smer() 
+
+                if (vzd_stred) > self.tolerancia:
                     return self.Pohyb.Dopredu.value
-                if (vzdialenost_stred) <= tolerancia:
+                if (vzd_stred) <= self.tolerancia:
                     return self.vyber([+1,-1])
             if volno_vpravo:
-                y,x = self.pozicia
-                y_agent = math.floor(y)
-                x_agent = math.floor(x)
-                y_agent +=0.5
-                x_agent +=0.5 
-                rozdiel_x = abs(x_agent - x)   
-                rozdiel_y = abs(y_agent - y)  
-                vzdialenost_stred = (rozdiel_y,rozdiel_x)
-                tolerancia = (0.05,0.05)
-                if (vzdialenost_stred) > tolerancia:
+                vzd_stred = self.smer()
+
+                if (vzd_stred) > self.tolerancia:
                     return self.Pohyb.Dopredu.value
-                if (vzdialenost_stred) <= tolerancia:
+                if (vzd_stred) <= self.tolerancia:
                     return self.zatocenie(+1)
             if volno_vlavo:
-                y,x = self.pozicia
-                y_agent = math.floor(y)
-                x_agent = math.floor(x)
-                y_agent +=0.5
-                x_agent +=0.5 
-                rozdiel_x = abs(x_agent - x)   
-                rozdiel_y = abs(y_agent - y)
-                vzdialenost_stred = (rozdiel_y,rozdiel_x)
-                tolerancia = (0.05,0.05)
-                if (vzdialenost_stred) > tolerancia:
+                vzd_stred = self.smer()
+                
+                if (vzd_stred) > self.tolerancia:
                     return self.Pohyb.Dopredu.value
-                if (vzdialenost_stred) <= tolerancia:
+                if (vzd_stred) <= self.tolerancia:
                     return self.zatocenie(-1)
             return self.zatocenie(+2)
         return self.Pohyb.Dopredu.value
@@ -173,16 +163,18 @@ class Lovec(Agenti):
      
 #Specificky typ agenta - Korist      
 class Korist(Agenti):
-    
+
+    range = 18
     trieda = 11
     zivot = True
     uhol_otocenia = math.pi/2
-    zastavujuca_vzdialenost = 1
-    vzdialenost_pokracuj = 4
+    zastavujuca_vzdialenost = 0.4
+    vzdialenost_pokracuj = 1.7
     prah_bok = 0.7
-    uhol_otocenia = math.pi/2
+    
 
     def rozhodnutie(self, vysledok_pozorovania):
+        
         if self.cielovy_uhol is not None:
             if abs(self.chyba_uhla()) < 1e-6:
                 self.cielovy_uhol = None
@@ -196,7 +188,6 @@ class Korist(Agenti):
         kod_vpravo,vzdialenost_vpravo = vysledok_pozorovania[posledny_luc]
         kod_vlavo,vzdialenost_vlavo = vysledok_pozorovania[prvy_luc]
 
-
         volno_vpredu = (kod == 0) or (vzdialenost > self.vzdialenost_pokracuj)
         blokada_vpredu = (kod == 1) and (vzdialenost < self.zastavujuca_vzdialenost)
         volno_vpravo = (kod_vpravo == 0) or (vzdialenost_vpravo > self.prah_bok)
@@ -208,19 +199,54 @@ class Korist(Agenti):
             if delta_y **2 + delta_x **2 > self.vzdialenost_ignorovania_kriz **2:
                 self.miesto_konca = None
             elif not blokada_vpredu:
-                return self.Pohyb.Dopredu.value 
-        if volno_vpredu and volno_vpravo and volno_vlavo:
-            return self.vyber([0, +1, -1])
-        if volno_vpredu and volno_vlavo:
-            return self.zatocenie(-1)
-        if volno_vpredu and volno_vpravo:
-            return self.zatocenie(+1)
+                return self.Pohyb.Dopredu.value
+        
+        if volno_vpredu:
+            if volno_vpravo and volno_vlavo:
+                stred_vzd = self.smer()
+                print(stred_vzd)
+                if (stred_vzd > self.tolerancia):
+                    return self.Pohyb.Dopredu.value
+                if (stred_vzd) <= self.tolerancia:
+                    return self.vyber([0, +1, -1])
+            
+            if  volno_vlavo and not volno_vpravo:
+                stred_vzd = self.smer()
+                print(stred_vzd)
+                if (stred_vzd) > self.tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (stred_vzd) <= self.tolerancia:
+                    return self.zatocenie(-1)
+            
+            if  volno_vpravo and not volno_vlavo:
+                stred_vzd = self.smer()
+                print(stred_vzd)
+                if (stred_vzd) > self.tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (stred_vzd) <= self.tolerancia:
+                    return self.zatocenie(+1)
+               
         if blokada_vpredu:
             if volno_vlavo and volno_vpravo:
-                return self.vyber([+1,-1])
+                stred_vzd = self.smer()
+                print(stred_vzd)
+                if (stred_vzd) > self.tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (stred_vzd) <= self.tolerancia:
+                    return self.vyber([+1,-1])
             if volno_vpravo:
-                return self.zatocenie(+1)
+                stred_vzd = self.smer()
+                print(stred_vzd)
+                if (stred_vzd) > self.tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (stred_vzd) <= self.tolerancia:
+                    return self.zatocenie(+1)
             if volno_vlavo:
-                return self.zatocenie(-1)
+                stred_vzd = self.smer()
+                print(stred_vzd)
+                if (stred_vzd) > self.tolerancia:
+                    return self.Pohyb.Dopredu.value
+                if (stred_vzd) <= self.tolerancia:
+                    return self.zatocenie(-1)
             return self.zatocenie(+2)
-        return self.Pohyb.Dopredu.value     
+        return self.Pohyb.Dopredu.value
