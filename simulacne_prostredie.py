@@ -64,9 +64,11 @@ class Prostredie:
     
     def range_agentov(self,agentus_manus):
         visible=[]
+        pozorovatelia = []
+
+       
         
-        
-        pocet_rays = 35
+        pocet_rays = 90
         y_agent,x_agent = agentus_manus.pozicia
         vy,vx,hy,hx = y_agent, x_agent,y_agent,x_agent 
         uhol = agentus_manus.uhol_agent   
@@ -75,7 +77,16 @@ class Prostredie:
         final_distance,pomocne_oznacenie_h,pomocne_oznacenie_v,oznacenie=0,0,0,0
         distH,distV = 1000000,1000000
          
-        
+        for agentos in self.agents:
+            if agentos == agentus_manus or not agentos.zivot:
+                continue
+            else:    
+                y_agentos, x_agentos = agentos.pozicia
+                delta_wy = (math.floor(y_agentos)) - y_agent
+                delta_wx = (math.floor(x_agentos)) - x_agent
+                w2= delta_wy**2 + delta_wx**2
+            
+            pozorovatelia.append((agentos,delta_wy,delta_wx,w2))
        
         fov = math.radians(180)
         for i in range(pocet_rays):
@@ -113,6 +124,7 @@ class Prostredie:
             while dof < 8:
                 bunka_x = math.floor(ray_x)
                 bunka_y = math.floor(ray_y)
+                
                 if 0 <= bunka_y < self.vyska and 0 <= bunka_x < self.sirka and self.rozlozenie_prostredia[bunka_y][bunka_x] == 1: #trafili sme stenu
                     hx = ray_x
                     hy= ray_y
@@ -154,6 +166,7 @@ class Prostredie:
                     ray_x += x_offset
                     ray_y += y_offset
                     dof +=1
+                  
             if distV < distH:
                     ray_x=vx
                     ray_y=vy
@@ -166,11 +179,26 @@ class Prostredie:
                     final_distance = distH
                     final_distance = max(0, final_distance - agentus_manus.polomer)
                     oznacenie = pomocne_oznacenie_h
+
+            for agentos, delta_wy, delta_wx, w2 in pozorovatelia:
+                tc = delta_wy * delta_y + delta_wx * delta_x  
+                if tc <=0:
+                    continue
+                h2 = w2 - tc**2
+                r2=agentos.polomer**2
+                if h2 > r2:
+                    continue
+                t = tc - math.sqrt(r2-h2)
+                if t < final_distance:
+                    final_distance = t
+                    oznacenie = agentos.trieda
+
             if final_distance > agentus_manus.range:
                     oznacenie =0
                     final_distance = 0
-            visible.append((oznacenie,final_distance))   
-                    
+
+
+            visible.append((oznacenie,final_distance))           
             #https://www.youtube.com/watch?v=gYRrGTC7GtA&t=376s tutorial, pri nechapani bola vyuzita AI
 
         return visible
@@ -181,6 +209,7 @@ class Prostredie:
         rozhodnutia = []
         for agent in self.agents:
             pozorovanie = self.range_agentov(agent)
+            print(pozorovanie)
             akcia = agent.rozhodnutie(pozorovanie)
             rozhodnutia.append((agent,akcia))
             #print("Agent:",type(agent).__name__,"\n","Príkaz v kodovom tvare:",akcia,"\n""Pozicia:",agent.pozicia)
@@ -236,6 +265,8 @@ class Prostredie:
         y_agent,x_agent = self.integruj(agent, v,w)
         #print(type(agent).__name__, agent.uhol_agent, action)
         y_agent,x_agent = self.vytlac_zo_steny(y_agent,x_agent,agent.polomer)
+        
+             
         if self.rozlozenie_prostredia[math.floor(y_agent)][math.floor(x_agent)] == 1:
            return
         
