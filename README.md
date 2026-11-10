@@ -9,8 +9,10 @@ sets = np.empty((self.H, self.W), dtype=np.int8) na sets = np.empty((self.H, sel
 
 Rozdelenie prace na dokončenie:<br>
 Grafy a značenie môžeme spoločne.<br>
+Grafy a značenie môžeme spoločne.<br> 
 Jakub: Lovec špecifické spravanie.<br>
 Vlado: Lovec špecifické spravanie.<br>
 Lukáš: Všeobecné pravidlo dvoch rovnakých polí, korisť špecifické spravanie.<br>  
 Peťo: Krátkodoba, dlhodoba pamäť a učenie.  
+
 
