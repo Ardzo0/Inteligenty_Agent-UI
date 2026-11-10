@@ -5,9 +5,6 @@ POZNAMKY K ROZBEHANIU PROSTREDIA PRE SPUSTENIE PROGRAMU.
 - knižnica mazelib-alt
 - úprava AppData\Local\Programs\Python\Python314\Lib\site-packages\mazelib\generate\Ellers.py
   ===> potrebne zmenit riadok 34 z 
-sets = np.empty((self.H, self.W), dtype=np.int8) na 
-sets = np.empty((self.H, self.W), dtype=np.int32)
-
 sets = np.empty((self.H, self.W), dtype=np.int8) na sets = np.empty((self.H, self.W), dtype=np.int32) Poznamka mneviem, či nejde použiť aj int to by malo byť predvolene 32 bit treba otestovať toto tvrdenie.
 
 Rozdelenie prace na dokončenie:
